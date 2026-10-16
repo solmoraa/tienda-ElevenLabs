@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .routes.cart_routes import router as cart_router
+from .routes.checkout_routes import router as checkout_router
 from .routes.product_routes import router as product_router
 
 
@@ -13,6 +14,7 @@ app = FastAPI(
 
 app.include_router(product_router)
 app.include_router(cart_router)
+app.include_router(checkout_router)
 
 app.add_middleware(
     CORSMiddleware,

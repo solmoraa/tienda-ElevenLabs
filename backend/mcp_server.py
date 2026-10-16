@@ -84,6 +84,12 @@ def obtener_carrito(session_id: str) -> dict[str, Any]:
     return _request("GET", f"/api/v1/carts/{session_id}")
 
 
+@mcp.tool()
+def preparar_checkout(session_id: str) -> dict[str, Any]:
+    """Valida el carrito y crea una sesión de checkout de demostración. No procesa pagos."""
+    return _request("POST", f"/api/v1/carts/{session_id}/checkout")
+
+
 if __name__ == "__main__":
     allowed_hosts = ["127.0.0.1:*", "localhost:*"]
     if MCP_ALLOWED_HOST:

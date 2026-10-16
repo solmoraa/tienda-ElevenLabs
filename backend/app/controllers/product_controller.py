@@ -13,7 +13,7 @@ class ProductController:
         return ProductSearchResponse(products=products, count=len(products))
 
     def read_product(self, product_id: str) -> Product:
-        product = self._service.get_product(product_id)
+        product = self._service.get_by_id(product_id)
         if product is None:
             raise HTTPException(status_code=404, detail="Producto no encontrado.")
         return product

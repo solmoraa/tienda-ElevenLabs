@@ -49,6 +49,8 @@ Abrí `http://127.0.0.1:8000/docs` para probar los endpoints desde Swagger UI.
 - `GET /api/v1/carts/{session_id}`
 - `POST /api/v1/carts/{session_id}/items` con `{ "product_id": "...", "quantity": 1 }`
 - `DELETE /api/v1/carts/{session_id}/items/{product_id}?quantity=1`
+- `POST /api/v1/carts/{session_id}/checkout` para crear un checkout de demostración validado por el servidor.
+- `GET /api/v1/checkouts/{checkout_id}` para leer esa sesión de checkout.
 
 ## Pruebas
 
@@ -58,7 +60,7 @@ Abrí `http://127.0.0.1:8000/docs` para probar los endpoints desde Swagger UI.
 
 ## Servidor MCP (etapa 6)
 
-El servidor MCP expone la API como herramientas para un agente: `buscar_productos`, `obtener_detalle_producto`, `consultar_stock`, `agregar_al_carrito` y `obtener_carrito`. No guarda datos ni calcula precios: delega esas responsabilidades en FastAPI.
+El servidor MCP expone la API como herramientas para un agente: `buscar_productos`, `obtener_detalle_producto`, `consultar_stock`, `agregar_al_carrito`, `obtener_carrito` y `preparar_checkout`. No guarda datos ni calcula precios: delega esas responsabilidades en FastAPI.
 
 En una primera terminal iniciá FastAPI:
 
@@ -86,7 +88,7 @@ El endpoint MCP será `http://127.0.0.1:8001/mcp`. Esta URL sirve para pruebas l
 1. Habilitá MCP para el workspace si aparece el aviso de aceptación.
 2. En **MCP server integrations**, elegí **Add Custom MCP Server**.
 3. Ingresá una URL HTTPS pública terminada en `/mcp`; no uses `127.0.0.1` ni `localhost`.
-4. Probá la conexión y verificá que se descubran las cinco herramientas.
-5. Adjuntá la integración al agente de ventas y elegí aprobación granular: lectura automática para búsquedas/detalles/stock/carrito y aprobación para `agregar_al_carrito` mientras sea una demo.
+4. Probá la conexión y verificá que se descubran las seis herramientas, incluida `preparar_checkout`.
+5. Adjuntá la integración al agente de ventas y elegí aprobación granular: lectura automática para búsquedas/detalles/stock/carrito y aprobación para `agregar_al_carrito` y `preparar_checkout` mientras sea una demo.
 
 No configures todavía el agente con esta URL local.

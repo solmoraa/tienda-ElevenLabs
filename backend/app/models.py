@@ -15,6 +15,9 @@ class Product(BaseModel):
     currency: str = "ARS"
     stock: int = Field(ge=0)
     image_url: str
+    images: list[str] = Field(min_length=1)
+    colors: list[str] = Field(min_length=1)
+    variants: list[str] = Field(min_length=1)
     description: str
 
 
@@ -48,3 +51,13 @@ class Cart(BaseModel):
     items: list[CartItem]
     total: int = Field(ge=0)
     currency: str = "ARS"
+
+
+class CheckoutSession(BaseModel):
+    checkout_id: str
+    session_id: SessionId
+    items: list[CartItem]
+    total: int = Field(ge=0)
+    currency: str = "ARS"
+    checkout_url: str
+    is_demo: bool = True

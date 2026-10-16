@@ -1,9 +1,7 @@
 function ProductCard({ product }) {
   return (
     <article className="catalog-product">
-      <div className={`product-image product-image--${product.accent}`} aria-hidden="true">
-        <span>{product.icon}</span>
-      </div>
+      <img className="product-image product-photo" src={product.imageUrl} alt={product.name} />
       <div className="product-copy">
         <p>{product.category}</p>
         <h3>{product.name}</h3>

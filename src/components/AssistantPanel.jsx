@@ -1,76 +1,53 @@
 import AssistantStatus from "./AssistantStatus";
-import AssistantClientTools from "./AssistantClientTools";
 import CartView from "./CartView";
+import CheckoutView from "./CheckoutView";
 import ProductDetails from "./ProductDetails";
 import ProductResults from "./ProductResults";
 import { useAssistantExperience } from "../context/AssistantExperienceContext";
+import { useConversationControls } from "@elevenlabs/react";
 
-export default function AssistantPanel({ errorMessage, onClose }) {
+export default function AssistantPanel({ errorMessage, onClose, variant }) {
   const experience = useAssistantExperience();
 
-  const view = getPanelView(experience);
-
   return (
-    <aside className="assistant-panel" aria-labelledby="assistant-panel-title">
-      <AssistantClientTools />
+    <aside className={`assistant-panel ${variant === "overlay" ? "assistant-panel--overlay" : ""}`} aria-labelledby="assistant-panel-title">
       <header className="assistant-panel-header">
-        <div>
-          <p className="eyebrow">ASISTENTE RYNX</p>
-          <h2 id="assistant-panel-title">Aurora</h2>
-        </div>
-        <button className="close-panel" type="button" onClick={onClose} aria-label="Ocultar panel del asistente">×</button>
+        <div><p className="eyebrow">ASISTENTE RYNX</p><h2 id="assistant-panel-title">Aurora</h2></div>
+        <button className="close-panel" type="button" onClick={onClose} aria-label="Finalizar conversación y volver a la tienda">Finalizar conversación</button>
       </header>
-
       <AssistantStatus errorMessage={errorMessage} />
-      {view}
+      <PanelView experience={experience} />
     </aside>
   );
 }
 
-function getPanelView(experience) {
-  const {
-    addSelectedProduct,
-    cartItems,
-    error,
-    lastAddedProduct,
-    openCart,
-    prepareCheckout,
-    products,
-    selectProduct,
-    selectedProduct,
-    showDemoResults,
-    showError,
-    showWelcome,
-    view,
-  } = experience;
+function PanelView({ experience }) {
+  const { cartItems, checkout, error, products, selectedProduct, selectProduct, showWelcome, view } = experience;
+  const { sendContextualUpdate, sendUserMessage } = useConversationControls();
 
-  if (view === "loading") {
-    return <section className="assistant-view assistant-loading" aria-live="polite"><span aria-hidden="true">✦</span><h3>Buscando opciones…</h3><p>Estamos preparando recomendaciones para vos.</p></section>;
-  }
+  const handleProductSelection = (productId) => {
+    const product = products.find((item) => item.id === productId);
+    selectProduct(productId);
 
-  if (view === "results") {
-    return <ProductResults products={products} onSelect={selectProduct} onShowWelcome={showWelcome} />;
-  }
+    if (product) {
+      sendContextualUpdate(
+        `El cliente seleccionó visualmente el producto ${product.name} (product_id=${product.id}). Si pide agregarlo, usá este product_id exacto y seguí el flujo de stock y carrito mediante MCP.`
+      );
+    }
+  };
 
-  if (view === "details") {
-    return <ProductDetails product={selectedProduct} onAddToCart={addSelectedProduct} onBack={showDemoResults} />;
-  }
+  const handleAddToCart = (product) => {
+    sendContextualUpdate(
+      `El cliente pulsó "Agregar al carrito" para ${product.name} (product_id=${product.id}). Es una solicitud explícita: verificá el stock y, si corresponde, agregalo al carrito mediante MCP.`
+    );
+    sendUserMessage(`Quiero agregar al carrito el producto con product_id=${product.id}.`);
+  };
 
-  if (view === "confirmation") {
-    return <section className="assistant-view" aria-live="polite"><p className="assistant-view-kicker">CARRITO ACTUALIZADO</p><h3>{lastAddedProduct?.name} ya está en tu carrito.</h3><p className="assistant-view-description">Podés seguir explorando o revisar tu selección.</p><button className="assistant-primary-action" type="button" onClick={openCart}>Ver carrito</button><button className="assistant-text-button" type="button" onClick={showDemoResults}>Seguir comprando</button></section>;
-  }
-
-  if (view === "cart") {
-    return <CartView items={cartItems} onCheckout={prepareCheckout} onContinueShopping={showDemoResults} />;
-  }
-
-  if (view === "checkout") {
-    return <section className="assistant-view" aria-live="polite"><p className="assistant-view-kicker">CHECKOUT</p><h3>Tu checkout está listo.</h3><p className="assistant-view-description">Esta es una confirmación simulada. En una etapa posterior, el backend generará una URL de pago validada.</p><button className="assistant-primary-action" type="button" onClick={openCart}>Volver al carrito</button></section>;
-  }
-
-  if (view === "error") {
-    return <section className="assistant-view assistant-state-error" aria-live="polite"><p className="assistant-view-kicker">NO PUDIMOS CONTINUAR</p><h3>Algo salió mal.</h3><p className="assistant-view-description">{error}</p><button className="assistant-primary-action" type="button" onClick={showDemoResults}>Intentar otra vez</button></section>;
-  }
-
-  return <section className="assistant-welcome"><span aria-hidden="true">✦</span><h3>Hola, ¿qué estás buscando?</h3><p>Probá el recorrido visual mientras Aurora te acompaña por voz.</p><button className="assistant-primary-action" type="button" onClick={showDemoResults}>Ver recomendaciones</button><button className="assistant-text-button welcome-text-button" type="button" onClick={showError}>Ver estado de error</button></section>;
+  if (view === "loading") return <section className="assistant-view assistant-loading" aria-live="polite"><h3>Buscando opciones…</h3><p>Consultando productos reales.</p></section>;
+  if (view === "results") return <ProductResults products={products} onSelect={handleProductSelection} onShowWelcome={showWelcome} />;
+  if (view === "details") return <ProductDetails product={selectedProduct} onAddToCart={handleAddToCart} onBack={() => experience.showProducts(products.map((product) => product.id))} />;
+  if (view === "cart") return <CartView items={cartItems} onCheckout={() => sendUserMessage("Quiero pagar mi carrito y confirmar el checkout.")} onContinueShopping={showWelcome} />;
+  if (view === "checkout") return <CheckoutView checkout={checkout} onBack={() => experience.showCart(checkout.session_id)} />;
+  if (view === "error") return <section className="assistant-view assistant-state-error" aria-live="polite"><p className="assistant-view-kicker">NO PUDIMOS CONTINUAR</p><h3>Algo salió mal.</h3><p className="assistant-view-description">{error}</p></section>;
+  return <section className="assistant-welcome"><span aria-hidden="true">✦</span><h3>Hola, ¿qué estás buscando?</h3><p>Contale a Aurora qué necesitás y te mostrará resultados reales.</p></section>;
 }

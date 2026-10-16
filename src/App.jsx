@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { ConversationProvider } from "@elevenlabs/react";
+import { ConversationProvider, useConversationControls, useConversationStatus } from "@elevenlabs/react";
+import AssistantClientTools from "./components/AssistantClientTools";
 import AssistantPanel from "./components/AssistantPanel";
 import Catalog from "./components/Catalog";
 import Header from "./components/Header";
@@ -8,35 +9,25 @@ import { AssistantExperienceProvider } from "./context/AssistantExperienceContex
 import { featuredProducts } from "./data/products";
 
 function Storefront({ conversationError, onConversationError }) {
-  const [isAssistantPanelVisible, setIsAssistantPanelVisible] = useState(true);
+  const { endSession } = useConversationControls();
+  const { status } = useConversationStatus();
+  const isConversationActive = status === "connecting" || status === "connected";
+
+  const handleExitAssistant = async () => {
+    if (status === "connected") await endSession();
+  };
 
   return (
     <>
+      <AssistantClientTools />
       <Header />
       <main id="inicio">
         <Hero
           onConversationError={onConversationError}
-          onShowAssistantPanel={() => setIsAssistantPanelVisible(true)}
         />
 
         <section className="shopping-experience" aria-label="Tienda y asistente">
           <Catalog products={featuredProducts} />
-
-          {isAssistantPanelVisible ? (
-            <AssistantPanel
-              errorMessage={conversationError}
-              onClose={() => setIsAssistantPanelVisible(false)}
-            />
-          ) : (
-            <button
-              className="show-assistant-panel"
-              type="button"
-              onClick={() => setIsAssistantPanelVisible(true)}
-            >
-              <span aria-hidden="true">✦</span>
-              Mostrar panel del asistente
-            </button>
-          )}
         </section>
 
         <section className="how-it-works" id="como-funciona" aria-labelledby="how-it-works-title">
@@ -50,6 +41,14 @@ function Storefront({ conversationError, onConversationError }) {
         </section>
       </main>
       <footer className="site-footer">Rynx · Demo de e-commerce conversacional</footer>
+
+      {isConversationActive && (
+        <AssistantPanel
+          errorMessage={conversationError}
+          onClose={handleExitAssistant}
+          variant="overlay"
+        />
+      )}
     </>
   );
 }

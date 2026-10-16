@@ -4,7 +4,7 @@ import { useConversationControls, useConversationStatus } from "@elevenlabs/reac
 // Identificador público del agente configurado por la usuaria en ElevenLabs.
 const AGENT_ID = "agent_4301m4zxq778fc3aky579g2w12e9";
 
-export default function AgentButton({ onConversationError, onShowAssistantPanel }) {
+export default function AgentButton({ onConversationError }) {
   // Acciones oficiales para abrir y cerrar una sesión de voz.
   const { startSession, endSession } = useConversationControls();
   // Estado reactivo: disconnected, connecting o connected.
@@ -24,7 +24,6 @@ export default function AgentButton({ onConversationError, onShowAssistantPanel 
         return;
       }
 
-      onShowAssistantPanel();
       // Pedimos el permiso de forma explícita para poder explicar el motivo al usuario.
       await requestMicrophonePermission();
       // Para un agente público basta su Agent ID; nunca se expone una API key en el navegador.

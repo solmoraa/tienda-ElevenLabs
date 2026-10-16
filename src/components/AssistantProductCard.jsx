@@ -1,9 +1,7 @@
 export default function AssistantProductCard({ product, onSelect }) {
   return (
     <article className="assistant-product-card">
-      <div className={`assistant-product-image product-image--${product.accent}`} aria-hidden="true">
-        {product.icon}
-      </div>
+      <img className="assistant-product-image product-photo" src={product.imageUrl} alt="" />
       <div>
         <p>{product.category}</p>
         <h3>{product.name}</h3>

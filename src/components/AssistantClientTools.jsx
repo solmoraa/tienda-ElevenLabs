@@ -1,51 +1,56 @@
 import { useConversationClientTool } from "@elevenlabs/react";
 import { useAssistantExperience } from "../context/AssistantExperienceContext";
-import { featuredProducts } from "../data/products";
 
 function waitForRender() {
   return new Promise((resolve) => window.requestAnimationFrame(resolve));
 }
 
 export default function AssistantClientTools() {
-  const {
-    cartItems,
-    openCart,
-    prepareCheckout,
-    selectProduct,
-    showDemoResults,
-  } = useAssistantExperience();
+  const { showCart, showCheckout, showError, showProductDetail, showProducts } = useAssistantExperience();
 
-  // Los nombres son idénticos a los configurados en ElevenLabs.
-  useConversationClientTool("mostrar_productos", async () => {
-    showDemoResults();
-    await waitForRender();
-    return "Panel actualizado con tres recomendaciones simuladas: Runner Nova (rynx-runner-black), Trail Terra (rynx-trail-sand) y Street Pulse (rynx-street-lime).";
+  useConversationClientTool("mostrar_productos", async ({ product_ids: productIds }) => {
+    try {
+      const ids = productIds.split(",").map((id) => id.trim()).filter(Boolean);
+      await showProducts(ids);
+      await waitForRender();
+      return "Panel actualizado con productos reales del catálogo."; 
+    } catch {
+      showError("No pudimos cargar las recomendaciones reales.");
+      return "No se pudo actualizar el panel de productos."; 
+    }
   });
 
   useConversationClientTool("mostrar_detalle_producto", async ({ product_id: productId }) => {
-    if (!featuredProducts.some((product) => product.id === productId)) {
-      return `No existe un producto simulado con el identificador ${productId}.`;
+    try {
+      await showProductDetail(productId);
+      await waitForRender();
+      return `Panel actualizado con el detalle real del producto ${productId}.`; 
+    } catch {
+      showError("No pudimos cargar el detalle real del producto.");
+      return "No se pudo actualizar el detalle en pantalla."; 
     }
-
-    selectProduct(productId);
-    await waitForRender();
-    return `Panel actualizado con el detalle del producto ${productId}.`;
   });
 
-  useConversationClientTool("mostrar_carrito", async () => {
-    openCart();
-    await waitForRender();
-    return "Panel actualizado con el carrito simulado del usuario.";
+  useConversationClientTool("mostrar_carrito", async ({ session_id: sessionId }) => {
+    try {
+      await showCart(sessionId);
+      await waitForRender();
+      return "Panel actualizado con el carrito real de esta conversación."; 
+    } catch {
+      showError("No pudimos cargar el carrito real.");
+      return "No se pudo actualizar el carrito en pantalla."; 
+    }
   });
 
-  useConversationClientTool("mostrar_checkout", async () => {
-    if (!cartItems.length) {
-      return "No se puede mostrar el checkout: el carrito simulado está vacío.";
+  useConversationClientTool("mostrar_checkout", async ({ checkout_id: checkoutId }) => {
+    try {
+      await showCheckout(checkoutId);
+      await waitForRender();
+      return "La pantalla muestra el checkout de demostración validado por el servidor.";
+    } catch {
+      showError("No pudimos cargar el checkout de demostración.");
+      return "No se pudo actualizar la pantalla de checkout.";
     }
-
-    prepareCheckout();
-    await waitForRender();
-    return "Panel actualizado con la vista de checkout simulado. No se inició ningún pago.";
   });
 
   return null;

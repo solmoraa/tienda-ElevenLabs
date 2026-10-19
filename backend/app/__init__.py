@@ -1,1 +1,1 @@
-"""Backend de demostración para la tienda conversacional Rynx."""
+"""Backend de demostración para la tienda conversacional DR Sport."""

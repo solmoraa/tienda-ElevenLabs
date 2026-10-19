@@ -7,7 +7,7 @@ from .routes.product_routes import router as product_router
 
 
 app = FastAPI(
-    title="Rynx Store Demo API",
+    title="DR Sport Store Demo API",
     version="0.1.0",
     description="API de demostración para catálogo, stock y carritos por sesión.",
 )

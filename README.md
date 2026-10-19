@@ -1,4 +1,4 @@
-# Rynx — E-commerce conversacional
+# DR Sport — E-commerce conversacional
 
 Demo de una tienda React con un agente de ventas de ElevenLabs y un servidor MCP local. El agente puede buscar productos, consultar stock y administrar un carrito en memoria.
 

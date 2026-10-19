@@ -30,6 +30,17 @@ def test_daily_use_aliases_return_running_shoes() -> None:
         assert {product["category"] for product in body["products"]} == {"running"}
 
 
+def test_search_hides_products_without_available_stock() -> None:
+    assert cart_repository.try_add("reserve-all", "stiletto-rojo-nocturno", 2, 2)
+
+    response = client.get("/api/v1/products", params={"category": "tacos"})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["count"] == 1
+    assert body["products"][0]["id"] == "stiletto-nude-elegance"
+
+
 def test_cart_calculates_price_on_the_server() -> None:
     response = client.post(
         "/api/v1/carts/session-demo/items",
@@ -38,7 +49,9 @@ def test_cart_calculates_price_on_the_server() -> None:
     assert response.status_code == 201
     body = response.json()
     assert body["total"] == 225800
+    assert body["currency"] == "ARS"
     assert body["items"][0]["unit_price"] == 112900
+    assert body["items"][0]["currency"] == "ARS"
 
 
 def test_cart_rejects_insufficient_stock() -> None:
@@ -69,6 +82,8 @@ def test_checkout_is_created_from_the_server_cart() -> None:
     assert response.status_code == 201
     body = response.json()
     assert body["total"] == 112900
+    assert body["currency"] == "ARS"
+    assert body["items"][0]["currency"] == "ARS"
     assert body["is_demo"] is True
     assert body["checkout_url"] == f"/checkout/{body['checkout_id']}"
 

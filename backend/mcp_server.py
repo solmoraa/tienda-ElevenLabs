@@ -1,4 +1,4 @@
-"""Servidor MCP que adapta la API HTTP de Rynx para agentes conversacionales."""
+"""Servidor MCP que adapta la API HTTP de DR Sport para agentes conversacionales."""
 
 import os
 from typing import Any
@@ -12,9 +12,9 @@ API_BASE_URL = os.getenv("RYNX_API_URL", "http://127.0.0.1:8000").rstrip("/")
 MCP_ALLOWED_HOST = os.getenv("MCP_ALLOWED_HOST", "").strip()
 
 mcp = MCPServer(
-    "Rynx Store MCP",
+    "DR Sport Store MCP",
     instructions=(
-        "Herramientas de la tienda Rynx. Usá los IDs de producto devueltos por "
+        "Herramientas de la tienda DR Sport. Usá los IDs de producto devueltos por "
         "buscar_productos o obtener_detalle_producto. Los importes y el stock "
         "devueltos por estas herramientas son la única fuente de verdad."
     ),

@@ -13,7 +13,13 @@ class ProductService:
         self._cart_repository = cart_repository
 
     def search(self, category: str | None, max_price: int | None, limit: int) -> list[Product]:
-        return self._product_repository.search(category, max_price, limit)
+        products = self._product_repository.search(category, max_price, 50)
+        available_products = [
+            product
+            for product in products
+            if self.get_available_stock(product.id) not in (None, 0)
+        ]
+        return available_products[:limit]
 
     def get_by_id(self, product_id: str) -> Product | None:
         return self._product_repository.get_by_id(product_id)

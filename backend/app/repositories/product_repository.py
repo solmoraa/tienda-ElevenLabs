@@ -31,7 +31,9 @@ class ProductRepository:
                 name="Strike Pro Verde",
                 category="fútbol",
                 price=128500,
-                stock=3,
+                # Inventario holgado para que las conversaciones de la demo no
+                # agoten el producto después de unas pocas pruebas.
+                stock=40,
                 image_url=image("11_40_05-3"),
                 images=[image("11_40_05-3"), image("11_40_06-4")],
                 colors=["Negro", "Verde lima"],

@@ -1,29 +1,33 @@
 import AssistantStatus from "./AssistantStatus";
 import CartView from "./CartView";
-import CheckoutView from "./CheckoutView";
 import ProductDetails from "./ProductDetails";
 import ProductResults from "./ProductResults";
 import { useAssistantExperience } from "../context/AssistantExperienceContext";
-import { useConversationControls } from "@elevenlabs/react";
+import { useEffect } from "react";
+import { useConversationControls, useConversationMode } from "@elevenlabs/react";
 
-export default function AssistantPanel({ errorMessage, onClose, variant }) {
+export default function AssistantPanel({ errorMessage, onCheckoutReady, onClose, variant }) {
   const experience = useAssistantExperience();
 
   return (
-    <aside className={`assistant-panel ${variant === "overlay" ? "assistant-panel--overlay" : ""}`} aria-labelledby="assistant-panel-title">
+    <aside className={`assistant-panel ${variant === "overlay" ? "assistant-panel--overlay" : ""}`} aria-label="Asistente de compra Aurora">
       <header className="assistant-panel-header">
-        <div><p className="eyebrow">ASISTENTE RYNX</p><h2 id="assistant-panel-title">Aurora</h2></div>
-        <button className="close-panel" type="button" onClick={onClose} aria-label="Finalizar conversación y volver a la tienda">Finalizar conversación</button>
+        <AssistantStatus errorMessage={errorMessage} />
+        <button className="close-panel" type="button" onClick={onClose} aria-label="Finalizar conversación y volver a la tienda">Terminar llamada</button>
       </header>
-      <AssistantStatus errorMessage={errorMessage} />
-      <PanelView experience={experience} />
+      <PanelView experience={experience} onCheckoutReady={onCheckoutReady} />
     </aside>
   );
 }
 
-function PanelView({ experience }) {
+function PanelView({ experience, onCheckoutReady }) {
   const { cartItems, checkout, error, products, selectedProduct, selectProduct, showWelcome, view } = experience;
   const { sendContextualUpdate, sendUserMessage } = useConversationControls();
+  const { isListening, isSpeaking } = useConversationMode();
+
+  useEffect(() => {
+    if (view === "checkout" && checkout) onCheckoutReady(checkout);
+  }, [checkout, onCheckoutReady, view]);
 
   const handleProductSelection = (productId) => {
     const product = products.find((item) => item.id === productId);
@@ -47,7 +51,7 @@ function PanelView({ experience }) {
   if (view === "results") return <ProductResults products={products} onSelect={handleProductSelection} onShowWelcome={showWelcome} />;
   if (view === "details") return <ProductDetails product={selectedProduct} onAddToCart={handleAddToCart} onBack={() => experience.showProducts(products.map((product) => product.id))} />;
   if (view === "cart") return <CartView items={cartItems} onCheckout={() => sendUserMessage("Quiero pagar mi carrito y confirmar el checkout.")} onContinueShopping={showWelcome} />;
-  if (view === "checkout") return <CheckoutView checkout={checkout} onBack={() => experience.showCart(checkout.session_id)} />;
+  if (view === "checkout") return <section className="assistant-view assistant-loading" aria-live="polite"><span className="voice-orb voice-orb--speaking" /><h3>Abriendo el pago…</h3></section>;
   if (view === "error") return <section className="assistant-view assistant-state-error" aria-live="polite"><p className="assistant-view-kicker">NO PUDIMOS CONTINUAR</p><h3>Algo salió mal.</h3><p className="assistant-view-description">{error}</p></section>;
-  return <section className="assistant-welcome"><span aria-hidden="true">✦</span><h3>Hola, ¿qué estás buscando?</h3><p>Contale a Aurora qué necesitás y te mostrará resultados reales.</p></section>;
+  return <section className="assistant-welcome"><span className={`voice-orb voice-orb--hero ${isSpeaking ? "voice-orb--speaking" : ""}`} aria-hidden="true" /><h3>{isSpeaking ? "Hablando…" : isListening ? "Escuchando…" : "Conversación activa"}</h3><p>Contale a Aurora qué estás buscando.</p></section>;
 }

@@ -1,5 +1,4 @@
 import {
-  useConversationInput,
   useConversationMode,
   useConversationStatus,
 } from "@elevenlabs/react";
@@ -13,23 +12,14 @@ function getConnectionLabel(status, isSpeaking, isListening) {
 }
 
 export default function AssistantStatus({ errorMessage }) {
-  const { message, status } = useConversationStatus();
+  const { status } = useConversationStatus();
   const { isSpeaking, isListening } = useConversationMode();
-  const { isMuted, setMuted } = useConversationInput();
-  const isConnected = status === "connected";
 
   return (
-    <>
-      <p className="connection-status"><span></span>{getConnectionLabel(status, isSpeaking, isListening)}</p>
-
-      {isConnected && (
-        <button className="mute-button" type="button" onClick={() => setMuted(!isMuted)}>
-          {isMuted ? "Activar micrófono" : "Silenciar micrófono"}
-        </button>
-      )}
-
-      {message && <p className="conversation-message">{message}</p>}
-      {errorMessage && <p className="agent-error panel-error">{errorMessage}</p>}
-    </>
+    <div className="assistant-voice-status" aria-live="polite">
+      <span className={`voice-orb ${isSpeaking ? "voice-orb--speaking" : ""}`} aria-hidden="true" />
+      <span>{getConnectionLabel(status, isSpeaking, isListening)}</span>
+      {errorMessage && <span className="agent-error panel-error">{errorMessage}</span>}
+    </div>
   );
 }

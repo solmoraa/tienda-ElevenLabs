@@ -1,7 +1,9 @@
+import AssistantProductMedia from "./AssistantProductMedia";
+
 export default function AssistantProductCard({ product, onSelect }) {
   return (
     <article className="assistant-product-card">
-      <img className="assistant-product-image product-photo" src={product.imageUrl} alt="" />
+      <AssistantProductMedia product={product} className="assistant-product-image" decorative />
       <div>
         <p>{product.category}</p>
         <h3>{product.name}</h3>

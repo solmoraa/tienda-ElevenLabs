@@ -5,17 +5,35 @@ import AssistantPanel from "./components/AssistantPanel";
 import Catalog from "./components/Catalog";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
-import { AssistantExperienceProvider } from "./context/AssistantExperienceContext";
+import CheckoutView from "./components/CheckoutView";
+import { AssistantExperienceProvider, useAssistantExperience } from "./context/AssistantExperienceContext";
 import { featuredProducts } from "./data/products";
 
 function Storefront({ conversationError, onConversationError }) {
   const { endSession } = useConversationControls();
   const { status } = useConversationStatus();
+  const experience = useAssistantExperience();
+  const [storeCheckout, setStoreCheckout] = useState(null);
   const isConversationActive = status === "connecting" || status === "connected";
 
   const handleExitAssistant = async () => {
-    if (status === "connected") await endSession();
+    if (status === "connected" || status === "connecting") await endSession();
+    experience.showWelcome();
   };
+
+  const handleCheckoutReady = (checkout) => {
+    setStoreCheckout(checkout);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  if (storeCheckout) {
+    return (
+      <>
+        <AssistantClientTools />
+        <CheckoutView checkout={storeCheckout} standalone onBack={() => { setStoreCheckout(null); experience.showWelcome(); }} />
+      </>
+    );
+  }
 
   return (
     <>
@@ -40,11 +58,12 @@ function Storefront({ conversationError, onConversationError }) {
           </ol>
         </section>
       </main>
-      <footer className="site-footer">Rynx · Demo de e-commerce conversacional</footer>
+      <footer className="site-footer">DR Sport · Demo de e-commerce conversacional</footer>
 
       {isConversationActive && (
         <AssistantPanel
           errorMessage={conversationError}
+          onCheckoutReady={handleCheckoutReady}
           onClose={handleExitAssistant}
           variant="overlay"
         />

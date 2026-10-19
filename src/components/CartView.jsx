@@ -1,9 +1,5 @@
 function formatPrice(value) {
-  return new Intl.NumberFormat("es-AR", {
-    currency: "ARS",
-    maximumFractionDigits: 0,
-    style: "currency",
-  }).format(value);
+  return `ARS ${new Intl.NumberFormat("es-AR", { maximumFractionDigits: 0 }).format(value)}`;
 }
 
 export default function CartView({ items, onCheckout, onContinueShopping }) {
@@ -18,13 +14,14 @@ export default function CartView({ items, onCheckout, onContinueShopping }) {
           <ul className="assistant-cart-list">
             {items.map(({ product, quantity }) => (
               <li key={product.id}>
-                <span>{product.name} <small>× {quantity}</small></span>
+                <img src={product.imageUrl} alt="" />
+                <span><strong>{product.name}</strong><small>{product.category || "DR Sport"} · Cantidad {quantity}</small></span>
                 <strong>{formatPrice(product.priceValue * quantity)}</strong>
               </li>
             ))}
           </ul>
           <p className="cart-total"><span>Total</span><strong>{formatPrice(total)}</strong></p>
-          <button className="assistant-primary-action" type="button" onClick={onCheckout}>Preparar checkout</button>
+          <button className="assistant-primary-action" type="button" onClick={onCheckout}>Finalizar compra</button>
         </>
       ) : (
         <p className="assistant-view-description">Tu carrito está vacío por ahora.</p>

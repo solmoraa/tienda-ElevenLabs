@@ -5,9 +5,9 @@ import {
 import "./AssistantStatus.css";
 
 function getConnectionLabel(status, isSpeaking, isListening) {
-  if (status === "connecting") return "Conectando con Aurora";
-  if (status === "connected" && isSpeaking) return "Aurora está hablando";
-  if (status === "connected" && isListening) return "Aurora está escuchando";
+  if (status === "connecting") return "Conectando con el asistente";
+  if (status === "connected" && isSpeaking) return "El asistente está hablando";
+  if (status === "connected" && isListening) return "El asistente está escuchando";
   if (status === "connected") return "Conversación activa";
   return "Panel listo";
 }

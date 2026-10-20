@@ -6,7 +6,7 @@ export default function ProductResults({ products, onSelect, onShowWelcome }) {
     <section className="assistant-view" aria-live="polite">
       <p className="assistant-view-kicker">RECOMENDACIONES</p>
       <h3>Encontré estas opciones.</h3>
-      <p className="assistant-view-description">Elegí una opción para ver el detalle y continuar con Aurora.</p>
+      <p className="assistant-view-description">Elegí una opción para ver el detalle y continuar con el asistente.</p>
       <div className="assistant-results-list">
         {products.map((product) => (
           <AssistantProductCard key={product.id} product={product} onSelect={onSelect} />

@@ -8,7 +8,7 @@ export default function Hero({ onConversationError }) {
         <p className="eyebrow">COMPRA CONVERSACIONAL</p>
         <h1 id="hero-title">Encontrá lo que buscás, <em>hablando.</em></h1>
         <p className="hero-description">
-          Descubrí productos en la tienda o hablá con Aurora para recibir una recomendación personalizada.
+          Descubrí productos en la tienda o hablá con nuestro asistente para recibir una recomendación personalizada.
         </p>
         <AgentButton onConversationError={onConversationError} />
       </div>

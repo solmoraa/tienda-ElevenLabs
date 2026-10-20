@@ -42,7 +42,7 @@ export default function AgentButton({ onConversationError }) {
         <span aria-hidden="true">{isConnected ? "■" : "✦"}</span>
         {isConnected ? "Finalizar conversación" : isConnecting ? "Conectando..." : "Hablar con nuestro asistente"}
       </button>
-      <p>{isConnected ? "Aurora está conectada." : "Al iniciar, el navegador solicitará acceso al micrófono."}</p>
+      <p>{isConnected ? "El asistente está conectado." : "Al iniciar, el navegador solicitará acceso al micrófono."}</p>
       {errorMessage && <p className="agent-error">{errorMessage}</p>}
     </div>
   );

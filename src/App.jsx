@@ -59,7 +59,7 @@ export default function App() {
       // Algunos errores ocurren durante la sesión, no necesariamente dentro del click del botón.
       onError={(error) => {
         console.error("Error de conversación:", error);
-        setConversationError("No pudimos conectar con Aurora. Revisá el permiso del micrófono y la configuración de acceso del agente.");
+        setConversationError("No pudimos conectar con el asistente. Revisá el permiso del micrófono y la configuración de acceso del agente.");
       }}
     >
       <CartProvider>

@@ -10,7 +10,7 @@ import "./assistant.css";
 
 export default function AssistantPanel({ errorMessage, onCheckoutReady, onClose, variant }) {
   return (
-    <aside className={`assistant-panel ${variant === "overlay" ? "assistant-panel--overlay" : ""}`} aria-label="Asistente de compra Aurora">
+    <aside className={`assistant-panel ${variant === "overlay" ? "assistant-panel--overlay" : ""}`} aria-label="Asistente de compra">
       <header className="assistant-panel-header">
         <AssistantStatus errorMessage={errorMessage} />
         <button className="close-panel" type="button" onClick={onClose} aria-label="Finalizar conversación y volver a la tienda">Terminar llamada</button>
@@ -55,5 +55,5 @@ function PanelView({ onCheckoutReady }) {
   if (view === "cart") return <CartView items={cartItems} total={cartTotal} onCheckout={() => sendUserMessage("Quiero pagar mi carrito y confirmar el checkout.")} onContinueShopping={showWelcome} />;
   if (view === "checkout") return <section className="assistant-view assistant-loading" aria-live="polite"><span className="voice-orb voice-orb--speaking" /><h3>Abriendo el pago…</h3></section>;
   if (view === "error") return <section className="assistant-view assistant-state-error" aria-live="polite"><p className="assistant-view-kicker">NO PUDIMOS CONTINUAR</p><h3>Algo salió mal.</h3><p className="assistant-view-description">{error}</p></section>;
-  return <section className="assistant-welcome"><span className={`voice-orb voice-orb--hero ${isSpeaking ? "voice-orb--speaking" : ""}`} aria-hidden="true" /><h3>{isSpeaking ? "Hablando…" : isListening ? "Escuchando…" : "Conversación activa"}</h3><p>Contale a Aurora qué estás buscando.</p></section>;
+  return <section className="assistant-welcome"><span className={`voice-orb voice-orb--hero ${isSpeaking ? "voice-orb--speaking" : ""}`} aria-hidden="true" /><h3>{isSpeaking ? "Hablando…" : isListening ? "Escuchando…" : "Conversación activa"}</h3><p>Contale al asistente qué estás buscando.</p></section>;
 }

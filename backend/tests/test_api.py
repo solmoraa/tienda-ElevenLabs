@@ -55,9 +55,62 @@ def test_sneaker_size_search_returns_all_matching_sneakers() -> None:
     assert {product["id"] for product in body["products"]} == {
         "run-aero-celeste",
         "handball-court-azul",
+        "stiletto-nude-elegance",
         "run-pace-coral",
         "tenis-rally-turquesa",
+        "stiletto-rojo-nocturno",
     }
+
+
+def test_generic_sneaker_search_returns_the_entire_catalog() -> None:
+    response = client.get("/api/v1/products", params={"category": "zapatillas"})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["count"] == 8
+    assert {product["id"] for product in body["products"]} == {
+        "run-aero-celeste",
+        "futbol-strike-verde",
+        "handball-court-azul",
+        "formal-oxford-negro",
+        "stiletto-nude-elegance",
+        "run-pace-coral",
+        "tenis-rally-turquesa",
+        "stiletto-rojo-nocturno",
+    }
+
+
+def test_search_products_by_natural_elegant_phrase() -> None:
+    response = client.get(
+        "/api/v1/products",
+        params={"category": "zapatos elegantes"},
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["count"] == 3
+    assert {product["id"] for product in payload["products"]} == {
+        "formal-oxford-negro",
+        "stiletto-nude-elegance",
+        "stiletto-rojo-nocturno",
+    }
+
+
+def test_search_products_by_each_catalog_category_in_natural_language() -> None:
+    expected_ids = {
+        "quiero opciones de running": {"run-aero-celeste", "run-pace-coral"},
+        "botines de fútbol": {"futbol-strike-verde"},
+        "zapatillas de handball": {"handball-court-azul"},
+        "calzado para tenis": {"tenis-rally-turquesa"},
+        "zapatos de hombre formales": {"formal-oxford-negro"},
+        "tacos elegantes de mujer": {"stiletto-nude-elegance", "stiletto-rojo-nocturno"},
+    }
+
+    for category, product_ids in expected_ids.items():
+        response = client.get("/api/v1/products", params={"category": category})
+
+        assert response.status_code == 200
+        assert {product["id"] for product in response.json()["products"]} == product_ids
 
 
 def test_sports_size_search_combines_both_filters() -> None:

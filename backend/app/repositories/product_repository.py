@@ -1,4 +1,5 @@
 import re
+import unicodedata
 
 from ..models import Product
 
@@ -124,51 +125,79 @@ class ProductRepository:
         max_price: int | None,
         limit: int,
     ) -> list[Product]:
-        normalized_category = category.strip().casefold() if category else None
+        normalized_category = self._normalize(category) if category else None
         products = list(self._products.values())
         if normalized_category:
-            aliases = {
-                "dia a dia": "running",
-                "día a día": "running",
-                "uso diario": "running",
-                "diario": "running",
-                "urbano": "running",
-                "urbanas": "running",
-                "casual": "running",
-                "lifestyle": "running",
-                "correr": "running",
-                "running": "running",
-                "futbol": "fútbol",
-                "fútbol": "fútbol",
-                "indoor": "handball",
-                "formal": "zapatos de hombre",
-                "elegante": "zapatos de hombre",
-                "salir": "tacos mujer",
-                "fiesta": "tacos mujer",
-                "tacos": "tacos mujer",
-            }
-            sports_categories = {"running", "fútbol", "handball", "tenis"}
-            sneaker_categories = {"running", "handball", "tenis"}
-            if normalized_category in {
-                "deporte",
-                "deportes",
-                "deportivo",
-                "deportiva",
-                "deportivas",
-                "hacer deporte",
-                "todos los deportes",
-            }:
-                products = [product for product in products if product.category.casefold() in sports_categories]
-            elif normalized_category in {"zapatilla", "zapatillas", "todas las zapatillas"}:
-                products = [product for product in products if product.category.casefold() in sneaker_categories]
-            else:
-                category_filter = aliases.get(normalized_category, normalized_category)
-                products = [product for product in products if category_filter in product.category.casefold()]
+            category_filters = self._resolve_category_filters(normalized_category)
+            products = [
+                product
+                for product in products
+                if self._normalize(product.category) in category_filters
+            ]
         if size is not None:
             products = [product for product in products if self._supports_size(product, size)]
         if max_price is not None:
             products = [product for product in products if product.price <= max_price]
         return products[:limit]
+
+    @staticmethod
+    def _normalize(value: str) -> str:
+        normalized = unicodedata.normalize("NFKD", value.strip().casefold())
+        return " ".join(
+            "".join(character for character in normalized if not unicodedata.combining(character)).split()
+        )
+
+    @classmethod
+    def _resolve_category_filters(cls, query: str) -> set[str]:
+        """Traduce frases naturales a las categorías reales disponibles."""
+        all_categories = {
+            "running",
+            "futbol",
+            "handball",
+            "tenis",
+            "zapatos de hombre",
+            "tacos mujer",
+        }
+        sports_categories = {"running", "futbol", "handball", "tenis"}
+        # En esta demo, "zapatillas" funciona como el término general para
+        # pedir todo el calzado disponible en el ecommerce.
+        sneaker_categories = all_categories
+        elegant_categories = {"zapatos de hombre", "tacos mujer"}
+
+        # Una categoría explícita tiene prioridad sobre un concepto amplio.
+        if any(term in query for term in ("taco", "stiletto", "zapatos de mujer", "calzado de mujer")):
+            return {"tacos mujer"}
+        if any(term in query for term in ("zapatos de hombre", "calzado de hombre", "oxford")):
+            return {"zapatos de hombre"}
+        if any(term in query for term in ("botin", "futbol", "tapones")):
+            return {"futbol"}
+        if any(term in query for term in ("handball", "balonmano", "indoor")):
+            return {"handball"}
+        if "tenis" in query:
+            return {"tenis"}
+        if any(term in query for term in ("running", "correr", "trote")):
+            return {"running"}
+
+        if any(
+            term in query
+            for term in ("elegante", "elegancia", "formal", "vestir", "fiesta", "evento", "salir")
+        ):
+            return elegant_categories
+        if any(term in query for term in ("deporte", "deportivo", "deportiva", "entrenar", "entrenamiento")):
+            return sports_categories
+        if "zapatilla" in query:
+            return sneaker_categories
+        if any(term in query for term in ("dia a dia", "uso diario", "diario", "urbano", "urbana", "casual", "lifestyle")):
+            return {"running"}
+        if query in {"calzado", "todos", "todas", "todo", "todo el calzado", "todos los productos"}:
+            return all_categories
+
+        exact_or_contained = {
+            category_name
+            for category_name in all_categories
+            if query == category_name or category_name in query or query in category_name
+        }
+        return exact_or_contained or {query}
 
     @staticmethod
     def _supports_size(product: Product, size: int) -> bool:

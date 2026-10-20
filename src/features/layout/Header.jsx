@@ -1,3 +1,5 @@
+import "./layout.css";
+
 export default function Header() {
   return (
     <header className="site-header">

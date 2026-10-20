@@ -1,9 +1,10 @@
-import AssistantProductMedia from "./AssistantProductMedia";
+import ProductMedia from "../ProductMedia/ProductMedia";
+import "./AssistantProductCard.css";
 
 export default function AssistantProductCard({ product, onSelect }) {
   return (
     <article className="assistant-product-card">
-      <AssistantProductMedia product={product} className="assistant-product-image" decorative />
+      <ProductMedia product={product} className="assistant-product-image" decorative />
       <div>
         <p>{product.category}</p>
         <h3>{product.name}</h3>

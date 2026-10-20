@@ -2,6 +2,7 @@ import {
   useConversationMode,
   useConversationStatus,
 } from "@elevenlabs/react";
+import "./AssistantStatus.css";
 
 function getConnectionLabel(status, isSpeaking, isListening) {
   if (status === "connecting") return "Conectando con Aurora";

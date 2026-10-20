@@ -1,4 +1,6 @@
-export default function AssistantProductMedia({ product, className, decorative = false }) {
+import "./ProductMedia.css";
+
+export default function ProductMedia({ product, className, decorative = false }) {
   if (product.videoUrl) {
     return (
       <video

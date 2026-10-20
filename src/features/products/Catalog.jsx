@@ -1,16 +1,5 @@
-function ProductCard({ product }) {
-  return (
-    <article className="catalog-product">
-      <img className="product-image product-photo" src={product.imageUrl} alt={product.name} />
-      <div className="product-copy">
-        <p>{product.category}</p>
-        <h3>{product.name}</h3>
-        <strong>{product.price}</strong>
-        <button type="button">Ver producto</button>
-      </div>
-    </article>
-  );
-}
+import ProductCard from "../../components/ProductCard/ProductCard";
+import "./products.css";
 
 export default function Catalog({ products }) {
   return (

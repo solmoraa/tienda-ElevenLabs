@@ -1,5 +1,3 @@
-// Vite sirve correctamente la coma literal del nombre; codificarla como %2C
-// hace que su fallback devuelva index.html en vez de la imagen.
 const imageBase = "/products/Imagen%20de%20ChatGPT%2016%20oct%202026, ";
 const image = (fileName) => `${imageBase}${fileName}.png`;
 

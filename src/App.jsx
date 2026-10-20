@@ -1,13 +1,11 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { ConversationProvider, useConversationControls, useConversationStatus } from "@elevenlabs/react";
-import AssistantClientTools from "./components/AssistantClientTools";
-import AssistantPanel from "./components/AssistantPanel";
-import Catalog from "./components/Catalog";
-import Header from "./components/Header";
-import Hero from "./components/Hero";
-import CheckoutView from "./components/CheckoutView";
+import AssistantClientTools from "./features/assistant/AssistantClientTools";
+import AssistantPanel from "./features/assistant/AssistantPanel";
+import CheckoutView from "./features/checkout/CheckoutView";
+import HomePage from "./features/home/HomePage";
 import { AssistantExperienceProvider, useAssistantExperience } from "./context/AssistantExperienceContext";
-import { featuredProducts } from "./data/products";
+import { CartProvider } from "./context/CartContext";
 
 function Storefront({ conversationError, onConversationError }) {
   const { endSession } = useConversationControls();
@@ -21,10 +19,10 @@ function Storefront({ conversationError, onConversationError }) {
     experience.showWelcome();
   };
 
-  const handleCheckoutReady = (checkout) => {
+  const handleCheckoutReady = useCallback((checkout) => {
     setStoreCheckout(checkout);
     window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  }, []);
 
   if (storeCheckout) {
     return (
@@ -38,27 +36,7 @@ function Storefront({ conversationError, onConversationError }) {
   return (
     <>
       <AssistantClientTools />
-      <Header />
-      <main id="inicio">
-        <Hero
-          onConversationError={onConversationError}
-        />
-
-        <section className="shopping-experience" aria-label="Tienda y asistente">
-          <Catalog products={featuredProducts} />
-        </section>
-
-        <section className="how-it-works" id="como-funciona" aria-labelledby="how-it-works-title">
-          <p className="eyebrow">UNA NUEVA FORMA DE ELEGIR</p>
-          <h2 id="how-it-works-title">Decinos qué necesitás.<br />Nosotros hacemos el resto.</h2>
-          <ol>
-            <li><span>01</span>Contanos qué estás buscando.</li>
-            <li><span>02</span>Recibí opciones a tu medida.</li>
-            <li><span>03</span>Elegí tu favorita.</li>
-          </ol>
-        </section>
-      </main>
-      <footer className="site-footer">DR Sport · Demo de e-commerce conversacional</footer>
+      <HomePage onConversationError={onConversationError} />
 
       {isConversationActive && (
         <AssistantPanel
@@ -84,12 +62,14 @@ export default function App() {
         setConversationError("No pudimos conectar con Aurora. Revisá el permiso del micrófono y la configuración de acceso del agente.");
       }}
     >
-      <AssistantExperienceProvider>
-        <Storefront
-          conversationError={conversationError}
-          onConversationError={setConversationError}
-        />
-      </AssistantExperienceProvider>
+      <CartProvider>
+        <AssistantExperienceProvider>
+          <Storefront
+            conversationError={conversationError}
+            onConversationError={setConversationError}
+          />
+        </AssistantExperienceProvider>
+      </CartProvider>
     </ConversationProvider>
   );
 }

@@ -1,0 +1,18 @@
+.hero { display: grid; grid-template-columns: 1.05fr 0.95fr; min-height: 535px; margin: 0 20px; overflow: hidden; border-radius: 22px; color: #fff; background: #15231f; }
+.hero-copy { align-self: center; padding: 70px 11% 70px 13%; }
+.hero-description { max-width: 475px; margin: 27px 0; color: #c6d0c7; font-size: 16px; line-height: 1.6; }
+.hero-art { position: relative; overflow: hidden; background: #d9f378; }
+.orb { position: absolute; border-radius: 50%; background: #b6da57; }
+.orb-large { top: -115px; right: -30px; width: 445px; height: 445px; }
+.orb-small { bottom: -78px; left: -55px; width: 190px; height: 190px; background: #c6e76a; }
+.product-shape { position: absolute; top: 50%; left: 49%; width: 335px; height: 202px; transform: translate(-50%, -42%) rotate(-17deg); border-radius: 82% 25% 40% 42%; background: #202e2a; box-shadow: inset -42px -18px #0d1714, 21px 22px 0 rgba(40, 68, 21, 0.19); }
+.product-shape::before { position: absolute; top: -35px; left: 77px; width: 108px; height: 82px; border-radius: 50% 50% 9px 8px; background: #f3f1ea; content: ""; }
+.product-shape span { position: absolute; left: 92px; width: 120px; height: 7px; border-radius: 8px; background: #dff78b; }
+.product-shape span:nth-child(1) { top: 77px; }.product-shape span:nth-child(2) { top: 99px; }.product-shape span:nth-child(3) { top: 121px; }
+.shopping-experience { display: grid; grid-template-columns: minmax(0, 1fr); gap: 40px; align-items: start; padding: 112px 9% 96px; }
+.how-it-works { margin: 0 20px 45px; padding: 76px 9%; border-radius: 22px; color: #fff; background: #38534a; }
+.how-it-works .eyebrow { color: #b5cf91; }.how-it-works h2 { max-width: 580px; }
+.how-it-works ol { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin: 58px 0 0; padding: 0; list-style: none; }
+.how-it-works li { padding-top: 15px; border-top: 1px solid #789087; font-size: 15px; }
+.how-it-works li span { display: block; margin-bottom: 25px; color: #c9ef5d; font: 700 14px "Syne", sans-serif; }
+@media (max-width: 720px) { .hero { grid-template-columns: 1fr; margin: 0 12px; }.hero-copy { padding: 68px 31px 58px; }.hero-art { min-height: 260px; }.shopping-experience { gap: 30px; padding: 80px 28px 70px; }.how-it-works { margin: 0 12px 30px; padding: 56px 28px; }.how-it-works ol { grid-template-columns: 1fr; gap: 26px; margin-top: 43px; }.how-it-works li span { display: inline-block; margin: 0 12px 0 0; } }

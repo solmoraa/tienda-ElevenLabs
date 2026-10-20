@@ -1,4 +1,5 @@
-import AssistantProductMedia from "./AssistantProductMedia";
+import ProductMedia from "../../components/ProductMedia/ProductMedia";
+import "./products.css";
 
 export default function ProductDetails({ product, onAddToCart, onBack }) {
   if (!product) return null;
@@ -6,7 +7,7 @@ export default function ProductDetails({ product, onAddToCart, onBack }) {
   return (
     <section className="assistant-view" aria-live="polite">
       <div className="assistant-detail-layout">
-        <div className="assistant-detail-media"><AssistantProductMedia product={product} className="assistant-detail-image" /></div>
+        <div className="assistant-detail-media"><ProductMedia product={product} className="assistant-detail-image" /></div>
         <div className="assistant-detail-copy">
           <p className="assistant-view-kicker">{product.category}</p>
           <h3>{product.name}</h3>

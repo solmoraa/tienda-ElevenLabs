@@ -1,10 +1,7 @@
-function formatPrice(value) {
-  return `ARS ${new Intl.NumberFormat("es-AR", { maximumFractionDigits: 0 }).format(value)}`;
-}
+import { formatPrice } from "../../utils/currency";
+import "./cart.css";
 
-export default function CartView({ items, onCheckout, onContinueShopping }) {
-  const total = items.reduce((sum, item) => sum + (item.product.priceValue * item.quantity), 0);
-
+export default function CartView({ items, total, onCheckout, onContinueShopping }) {
   return (
     <section className="assistant-view" aria-live="polite">
       <p className="assistant-view-kicker">TU CARRITO</p>

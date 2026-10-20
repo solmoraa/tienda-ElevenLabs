@@ -1,4 +1,5 @@
-import AssistantProductCard from "./AssistantProductCard";
+import AssistantProductCard from "../../components/AssistantProductCard/AssistantProductCard";
+import "./products.css";
 
 export default function ProductResults({ products, onSelect, onShowWelcome }) {
   return (

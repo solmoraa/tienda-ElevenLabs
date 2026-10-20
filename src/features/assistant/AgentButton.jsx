@@ -1,16 +1,13 @@
 import { useState } from "react";
 import { useConversationControls, useConversationStatus } from "@elevenlabs/react";
+import "./assistant.css";
 
-// Identificador público del agente configurado por la usuaria en ElevenLabs.
 const AGENT_ID = "agent_4301m4zxq778fc3aky579g2w12e9";
 
 export default function AgentButton({ onConversationError }) {
-  // Acciones oficiales para abrir y cerrar una sesión de voz.
   const { startSession, endSession } = useConversationControls();
-  // Estado reactivo: disconnected, connecting o connected.
   const { status } = useConversationStatus();
   const [errorMessage, setErrorMessage] = useState("");
-
   const isConnected = status === "connected";
   const isConnecting = status === "connecting";
 
@@ -24,9 +21,7 @@ export default function AgentButton({ onConversationError }) {
         return;
       }
 
-      // Pedimos el permiso de forma explícita para poder explicar el motivo al usuario.
       await requestMicrophonePermission();
-      // Para un agente público basta su Agent ID; nunca se expone una API key en el navegador.
       await startSession({ agentId: AGENT_ID });
     } catch (error) {
       console.error("Error al iniciar la conversación:", error);
@@ -59,7 +54,6 @@ async function requestMicrophonePermission() {
   }
 
   const microphoneStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  // Solo verificamos el permiso. El SDK abre su propia captura al iniciar la sesión.
   microphoneStream.getTracks().forEach((track) => track.stop());
 }
 

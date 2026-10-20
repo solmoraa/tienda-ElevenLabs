@@ -1,6 +1,7 @@
-import AgentButton from "./AgentButton";
+import AgentButton from "../assistant/AgentButton";
+import "./home.css";
 
-export default function Hero({ onConversationError, onShowAssistantPanel }) {
+export default function Hero({ onConversationError }) {
   return (
     <section className="hero" aria-labelledby="hero-title">
       <div className="hero-copy">
@@ -9,10 +10,7 @@ export default function Hero({ onConversationError, onShowAssistantPanel }) {
         <p className="hero-description">
           Descubrí productos en la tienda o hablá con Aurora para recibir una recomendación personalizada.
         </p>
-        <AgentButton
-          onConversationError={onConversationError}
-          onShowAssistantPanel={onShowAssistantPanel}
-        />
+        <AgentButton onConversationError={onConversationError} />
       </div>
       <div className="hero-art" aria-hidden="true">
         <div className="orb orb-large"></div>

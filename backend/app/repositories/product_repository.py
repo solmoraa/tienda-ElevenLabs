@@ -1,3 +1,5 @@
+import re
+
 from ..models import Product
 
 
@@ -115,7 +117,13 @@ class ProductRepository:
         ]
         self._products = {product.id: product for product in products}
 
-    def search(self, category: str | None, max_price: int | None, limit: int) -> list[Product]:
+    def search(
+        self,
+        category: str | None,
+        size: int | None,
+        max_price: int | None,
+        limit: int,
+    ) -> list[Product]:
         normalized_category = category.strip().casefold() if category else None
         products = list(self._products.values())
         if normalized_category:
@@ -139,11 +147,36 @@ class ProductRepository:
                 "fiesta": "tacos mujer",
                 "tacos": "tacos mujer",
             }
-            category_filter = aliases.get(normalized_category, normalized_category)
-            products = [product for product in products if category_filter in product.category.casefold()]
+            sports_categories = {"running", "fútbol", "handball", "tenis"}
+            sneaker_categories = {"running", "handball", "tenis"}
+            if normalized_category in {
+                "deporte",
+                "deportes",
+                "deportivo",
+                "deportiva",
+                "deportivas",
+                "hacer deporte",
+                "todos los deportes",
+            }:
+                products = [product for product in products if product.category.casefold() in sports_categories]
+            elif normalized_category in {"zapatilla", "zapatillas", "todas las zapatillas"}:
+                products = [product for product in products if product.category.casefold() in sneaker_categories]
+            else:
+                category_filter = aliases.get(normalized_category, normalized_category)
+                products = [product for product in products if category_filter in product.category.casefold()]
+        if size is not None:
+            products = [product for product in products if self._supports_size(product, size)]
         if max_price is not None:
             products = [product for product in products if product.price <= max_price]
         return products[:limit]
+
+    @staticmethod
+    def _supports_size(product: Product, size: int) -> bool:
+        for variant in product.variants:
+            match = re.search(r"Talles\s+(\d+)\s+al\s+(\d+)", variant, flags=re.IGNORECASE)
+            if match and int(match.group(1)) <= size <= int(match.group(2)):
+                return True
+        return False
 
     def get_by_id(self, product_id: str) -> Product | None:
         return self._products.get(product_id)

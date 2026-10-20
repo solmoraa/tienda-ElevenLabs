@@ -12,12 +12,17 @@ def test_search_adapter_translates_parameters(monkeypatch) -> None:
 
     monkeypatch.setattr(mcp_server.httpx, "request", fake_request)
 
-    result = mcp_server.buscar_productos(categoria="outdoor", precio_maximo=100000)
+    result = mcp_server.buscar_productos(categoria="outdoor", talle=40, precio_maximo=100000)
 
     assert result == {"ok": True, "data": {"products": [], "count": 0}}
     assert captured["method"] == "GET"
     assert captured["url"] == "http://127.0.0.1:8000/api/v1/products"
-    assert captured["params"] == {"category": "outdoor", "max_price": 100000, "limit": 10}
+    assert captured["params"] == {
+        "category": "outdoor",
+        "size": 40,
+        "max_price": 100000,
+        "limit": 10,
+    }
 
 
 def test_cart_adapter_preserves_server_error(monkeypatch) -> None:
@@ -29,3 +34,24 @@ def test_cart_adapter_preserves_server_error(monkeypatch) -> None:
     result = mcp_server.agregar_al_carrito("sesion-1", "rynx-street-lime", 4)
 
     assert result == {"ok": False, "status_code": 409, "error": "Stock insuficiente."}
+
+
+def test_cart_adapter_deduplicates_immediate_repeated_add(monkeypatch) -> None:
+    calls: list[tuple[str, str]] = []
+    mcp_server._recent_cart_additions.clear()
+
+    def fake_request(method: str, url: str, **kwargs: object) -> httpx.Response:
+        calls.append((method, url))
+        return httpx.Response(200, json={"session_id": "sesion-1", "items": []})
+
+    monkeypatch.setattr(mcp_server.httpx, "request", fake_request)
+
+    first = mcp_server.agregar_al_carrito("sesion-1", "run-aero-celeste")
+    second = mcp_server.agregar_al_carrito("sesion-1", "run-aero-celeste", 1)
+
+    assert first["ok"] is True
+    assert second["ok"] is True
+    assert calls == [
+        ("POST", "http://127.0.0.1:8000/api/v1/carts/sesion-1/items"),
+        ("GET", "http://127.0.0.1:8000/api/v1/carts/sesion-1"),
+    ]

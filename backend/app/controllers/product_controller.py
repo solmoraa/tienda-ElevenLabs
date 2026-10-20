@@ -8,8 +8,14 @@ class ProductController:
     def __init__(self, service: ProductService = product_service) -> None:
         self._service = service
 
-    def list_products(self, category: str | None, max_price: int | None, limit: int) -> ProductSearchResponse:
-        products = self._service.search(category, max_price, limit)
+    def list_products(
+        self,
+        category: str | None,
+        size: int | None,
+        max_price: int | None,
+        limit: int,
+    ) -> ProductSearchResponse:
+        products = self._service.search(category, size, max_price, limit)
         return ProductSearchResponse(products=products, count=len(products))
 
     def read_product(self, product_id: str) -> Product:

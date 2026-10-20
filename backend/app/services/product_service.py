@@ -9,8 +9,14 @@ class ProductService:
     ) -> None:
         self._product_repository = product_repository
 
-    def search(self, category: str | None, max_price: int | None, limit: int) -> list[Product]:
-        products = self._product_repository.search(category, max_price, 50)
+    def search(
+        self,
+        category: str | None,
+        size: int | None,
+        max_price: int | None,
+        limit: int,
+    ) -> list[Product]:
+        products = self._product_repository.search(category, size, max_price, 50)
         available_products = [product for product in products if product.stock > 0]
         return available_products[:limit]
 

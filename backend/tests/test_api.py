@@ -30,6 +30,53 @@ def test_daily_use_aliases_return_running_shoes() -> None:
         assert {product["category"] for product in body["products"]} == {"running"}
 
 
+def test_sports_search_returns_every_sports_category() -> None:
+    response = client.get("/api/v1/products", params={"category": "deporte"})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["count"] == 5
+    assert {product["category"] for product in body["products"]} == {
+        "running",
+        "fútbol",
+        "handball",
+        "tenis",
+    }
+
+
+def test_sneaker_size_search_returns_all_matching_sneakers() -> None:
+    response = client.get(
+        "/api/v1/products",
+        params={"category": "zapatillas", "size": 38},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert {product["id"] for product in body["products"]} == {
+        "run-aero-celeste",
+        "handball-court-azul",
+        "run-pace-coral",
+        "tenis-rally-turquesa",
+    }
+
+
+def test_sports_size_search_combines_both_filters() -> None:
+    response = client.get(
+        "/api/v1/products",
+        params={"category": "deporte", "size": 40},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert {product["id"] for product in body["products"]} == {
+        "run-aero-celeste",
+        "futbol-strike-verde",
+        "handball-court-azul",
+        "run-pace-coral",
+        "tenis-rally-turquesa",
+    }
+
+
 def test_demo_carts_do_not_consume_stock_from_other_sessions() -> None:
     assert cart_repository.try_add("first-session", "stiletto-rojo-nocturno", 2, 2)
     assert cart_repository.try_add("second-session", "stiletto-rojo-nocturno", 2, 2)

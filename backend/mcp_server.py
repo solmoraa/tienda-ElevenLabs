@@ -1,6 +1,8 @@
 """Servidor MCP que adapta la API HTTP de DR Sport para agentes conversacionales."""
 
 import os
+import threading
+import time
 from typing import Any
 
 import httpx
@@ -10,6 +12,9 @@ from mcp.server.transport_security import TransportSecuritySettings
 
 API_BASE_URL = os.getenv("RYNX_API_URL", "http://127.0.0.1:8000").rstrip("/")
 MCP_ALLOWED_HOST = os.getenv("MCP_ALLOWED_HOST", "").strip()
+ADD_DEDUPE_WINDOW_SECONDS = 3.0
+_recent_cart_additions: dict[tuple[str, str, int], float] = {}
+_cart_add_lock = threading.Lock()
 
 mcp = MCPServer(
     "DR Sport Store MCP",
@@ -44,13 +49,16 @@ def _request(method: str, path: str, **kwargs: Any) -> dict[str, Any]:
 @mcp.tool()
 def buscar_productos(
     categoria: str | None = None,
+    talle: int | None = None,
     precio_maximo: int | None = None,
     limite: int = 10,
 ) -> dict[str, Any]:
-    """Busca productos por categoría y/o precio máximo expresado en pesos argentinos."""
+    """Busca productos por categoría, talle y/o precio máximo expresado en pesos argentinos."""
     params = {"limit": min(max(limite, 1), 50)}
     if categoria:
         params["category"] = categoria
+    if talle is not None:
+        params["size"] = talle
     if precio_maximo is not None:
         params["max_price"] = precio_maximo
     return _request("GET", "/api/v1/products", params=params)
@@ -71,11 +79,21 @@ def consultar_stock(product_id: str) -> dict[str, Any]:
 @mcp.tool()
 def agregar_al_carrito(session_id: str, product_id: str, cantidad: int = 1) -> dict[str, Any]:
     """Agrega un producto al carrito de una sesión y devuelve el carrito validado por el servidor."""
-    return _request(
-        "POST",
-        f"/api/v1/carts/{session_id}/items",
-        json={"product_id": product_id, "quantity": cantidad},
-    )
+    key = (session_id, product_id, cantidad)
+    now = time.monotonic()
+    with _cart_add_lock:
+        last_added_at = _recent_cart_additions.get(key)
+        if last_added_at is not None and now - last_added_at < ADD_DEDUPE_WINDOW_SECONDS:
+            return _request("GET", f"/api/v1/carts/{session_id}")
+
+        result = _request(
+            "POST",
+            f"/api/v1/carts/{session_id}/items",
+            json={"product_id": product_id, "quantity": cantidad},
+        )
+        if result.get("ok"):
+            _recent_cart_additions[key] = now
+        return result
 
 
 @mcp.tool()

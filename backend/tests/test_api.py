@@ -30,15 +30,19 @@ def test_daily_use_aliases_return_running_shoes() -> None:
         assert {product["category"] for product in body["products"]} == {"running"}
 
 
-def test_search_hides_products_without_available_stock() -> None:
-    assert cart_repository.try_add("reserve-all", "stiletto-rojo-nocturno", 2, 2)
+def test_demo_carts_do_not_consume_stock_from_other_sessions() -> None:
+    assert cart_repository.try_add("first-session", "stiletto-rojo-nocturno", 2, 2)
+    assert cart_repository.try_add("second-session", "stiletto-rojo-nocturno", 2, 2)
 
     response = client.get("/api/v1/products", params={"category": "tacos"})
 
     assert response.status_code == 200
     body = response.json()
-    assert body["count"] == 1
-    assert body["products"][0]["id"] == "stiletto-nude-elegance"
+    assert body["count"] == 2
+    assert {product["id"] for product in body["products"]} == {
+        "stiletto-nude-elegance",
+        "stiletto-rojo-nocturno",
+    }
 
 
 def test_cart_calculates_price_on_the_server() -> None:

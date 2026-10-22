@@ -17,12 +17,34 @@ class Product(BaseModel):
     image_url: str
     images: list[str] = Field(min_length=1)
     colors: list[str] = Field(min_length=1)
-    variants: list[str] = Field(min_length=1)
+    color_options: list["ProductColor"] = Field(min_length=1)
+    sizes: list[str] = Field(min_length=1)
+    subcategories: list[str] = Field(default_factory=list)
+    product_type: str = "calzado"
+    variants: list[str] = Field(default_factory=list)
     description: str
+    recommended_product_id: ProductId | None = None
+
+
+class ProductColor(BaseModel):
+    name: str
+    image_url: str
+
+
+class ProductSummary(BaseModel):
+    id: ProductId
+    name: str
+    category: str
+    price: int = Field(ge=0)
+    currency: str = "ARS"
+    stock: int = Field(ge=0)
+    image_url: str
+    subcategories: list[str] = Field(default_factory=list)
+    product_type: str = "calzado"
 
 
 class ProductSearchResponse(BaseModel):
-    products: list[Product]
+    products: list[ProductSummary]
     count: int
 
 
@@ -34,6 +56,8 @@ class StockResponse(BaseModel):
 class AddCartItemRequest(BaseModel):
     product_id: ProductId
     quantity: int = Field(default=1, ge=1, le=10)
+    color: str | None = None
+    size: str | None = None
 
 
 class CartItem(BaseModel):
@@ -44,6 +68,8 @@ class CartItem(BaseModel):
     line_total: int = Field(ge=0)
     currency: str
     image_url: str
+    selected_color: str
+    selected_size: str
 
 
 class Cart(BaseModel):
@@ -51,6 +77,7 @@ class Cart(BaseModel):
     items: list[CartItem]
     total: int = Field(ge=0)
     currency: str = "ARS"
+    recommendation: ProductSummary | None = None
 
 
 class CheckoutSession(BaseModel):

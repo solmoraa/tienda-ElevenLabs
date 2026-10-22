@@ -24,6 +24,9 @@ class ProductController:
             raise HTTPException(status_code=404, detail="Producto no encontrado.")
         return product
 
+    def read_products(self, product_ids: list[str]) -> list[Product]:
+        return self._service.get_many(product_ids)
+
     def read_stock(self, product_id: str) -> StockResponse:
         available = self._service.get_available_stock(product_id)
         if available is None:

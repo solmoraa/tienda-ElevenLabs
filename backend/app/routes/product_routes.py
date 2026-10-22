@@ -12,9 +12,17 @@ def list_products(
     category: str | None = Query(default=None, min_length=1, max_length=100),
     size: int | None = Query(default=None, ge=20, le=60),
     max_price: int | None = Query(default=None, ge=0),
-    limit: int = Query(default=20, ge=1, le=50),
+    limit: int = Query(default=50, ge=1, le=50),
 ) -> ProductSearchResponse:
     return product_controller.list_products(category, size, max_price, limit)
+
+
+@router.get("/batch", response_model=list[Product])
+def read_products(
+    ids: str = Query(min_length=1, max_length=4000),
+) -> list[Product]:
+    product_ids = list(dict.fromkeys(value.strip() for value in ids.split(",") if value.strip()))
+    return product_controller.read_products(product_ids)
 
 
 @router.get("/{product_id}", response_model=Product)

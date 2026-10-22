@@ -5,4 +5,11 @@
 .assistant-panel--overlay .assistant-cart-list li span { display: grid; gap: 5px; color: #1e2420; }
 .assistant-panel--overlay .assistant-cart-list small { display: block; color: #7a827d; }
 .assistant-panel--overlay .cart-total { margin-top: 22px; padding: 20px 2px; border-top: 1px solid #e4e7e3; font-size: 20px; }
+.cart-recommendation { position: relative; display: grid; grid-template-columns: 68px minmax(0, 1fr); align-items: center; gap: 12px; width: min(100%, 390px); margin: 24px 0 8px; padding: 12px; overflow: hidden; border: 1px solid #cfe0bd; border-radius: 16px; color: #17231d; background: #f5faef; box-shadow: 0 15px 38px rgba(43, 65, 49, .12); text-align: left; cursor: pointer; animation: recommendation-pop 480ms cubic-bezier(.2, .8, .2, 1) both; }
+.cart-recommendation:hover { border-color: #9fbe49; transform: translateY(-2px); }
+.cart-recommendation img { width: 68px; height: 68px; border-radius: 11px; object-fit: cover; background: #fff; }
+.cart-recommendation > span:not(.cart-recommendation-badge) { display: grid; gap: 4px; }
+.cart-recommendation small { color: #617064; }
+.cart-recommendation-badge { position: absolute; top: 7px; right: 9px; color: #70852f; font-size: 8px; font-weight: 800; letter-spacing: .9px; }
+@keyframes recommendation-pop { from { opacity: 0; transform: translate(-12px, -8px) scale(.97); } to { opacity: 1; transform: translate(0) scale(1); } }
 @media (max-width: 560px) { .assistant-panel--overlay .assistant-cart-list li { grid-template-columns: 64px 1fr; }.assistant-panel--overlay .assistant-cart-list li > strong { grid-column: 2; }.assistant-panel--overlay .assistant-cart-list img { width: 64px; height: 64px; } }

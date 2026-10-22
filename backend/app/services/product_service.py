@@ -1,4 +1,4 @@
-from ..models import Product
+from ..models import Product, ProductSummary
 from ..repositories.product_repository import ProductRepository, product_repository
 
 
@@ -15,10 +15,13 @@ class ProductService:
         size: int | None,
         max_price: int | None,
         limit: int,
-    ) -> list[Product]:
+    ) -> list[ProductSummary]:
         products = self._product_repository.search(category, size, max_price, 50)
         available_products = [product for product in products if product.stock > 0]
-        return available_products[:limit]
+        return [self._product_repository.summary(product) for product in available_products[:limit]]
+
+    def get_many(self, product_ids: list[str]) -> list[Product]:
+        return self._product_repository.get_many(product_ids)
 
     def get_by_id(self, product_id: str) -> Product | None:
         return self._product_repository.get_by_id(product_id)

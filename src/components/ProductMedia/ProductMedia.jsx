@@ -1,12 +1,12 @@
 import "./ProductMedia.css";
 
-export default function ProductMedia({ product, className, decorative = false }) {
-  if (product.videoUrl) {
+export default function ProductMedia({ product, className, decorative = false, imageUrl = product.imageUrl, videoUrl = product.videoUrl }) {
+  if (videoUrl) {
     return (
       <video
         className={`${className} product-photo`}
-        src={product.videoUrl}
-        poster={product.imageUrl}
+        src={videoUrl}
+        poster={imageUrl}
         autoPlay
         loop
         muted
@@ -21,7 +21,7 @@ export default function ProductMedia({ product, className, decorative = false })
   return (
     <img
       className={`${className} product-photo`}
-      src={product.imageUrl}
+      src={imageUrl}
       alt={decorative ? "" : product.name}
     />
   );

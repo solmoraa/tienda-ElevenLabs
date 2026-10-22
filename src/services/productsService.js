@@ -1,25 +1,30 @@
-import { featuredProducts } from "../mockdata/products";
 import { formatPrice } from "../utils/currency";
 import { apiRequest } from "./apiClient";
 
-export async function getProduct(productId) {
-  const encodedProductId = encodeURIComponent(productId);
-  const [product, stock] = await Promise.all([
-    apiRequest(`/products/${encodedProductId}`),
-    apiRequest(`/products/${encodedProductId}/stock`),
-  ]);
-  const catalogProduct = featuredProducts.find((item) => item.id === product.id);
+const productVideos = {
+  "run-aero-celeste": "/videos/running-celeste.mp4",
+  "futbol-strike-verde": "/videos/botin-strike-negro.mp4",
+};
 
+function normalizeProduct(product) {
   return {
     ...product,
-    stock: stock.available,
+    colorOptions: product.color_options ?? [],
     imageUrl: product.image_url,
-    videoUrl: catalogProduct?.videoUrl,
     priceValue: product.price,
     price: formatPrice(product.price),
+    videoUrl: productVideos[product.id],
   };
 }
 
-export function getProducts(productIds) {
-  return Promise.all(productIds.map(getProduct));
+export async function getProduct(productId) {
+  const product = await apiRequest(`/products/${encodeURIComponent(productId)}`);
+  return normalizeProduct(product);
+}
+
+export async function getProducts(productIds) {
+  const ids = [...new Set(productIds)].filter(Boolean);
+  if (!ids.length) return [];
+  const products = await apiRequest(`/products/batch?ids=${encodeURIComponent(ids.join(","))}`);
+  return products.map(normalizeProduct);
 }

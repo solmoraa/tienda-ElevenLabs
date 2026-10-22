@@ -5,7 +5,7 @@ import { getProduct, getProducts } from "../services/productsService";
 import { useCart } from "./CartContext";
 
 const AssistantExperienceContext = createContext(null);
-const initialState = { checkout: null, error: "", products: [], requestId: 0, selectedProductId: null, view: "welcome" };
+const initialState = { checkout: null, error: "", products: [], requestId: 0, selectedColor: null, selectedProductId: null, selectedSize: null, view: "welcome" };
 
 function transitionDispatch(dispatch, action) {
   const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
@@ -26,8 +26,12 @@ function experienceReducer(state, action) {
   switch (action.type) {
     case "SEARCH_STARTED": return { ...state, error: "", requestId: action.requestId, view: "loading" };
     case "SEARCH_FINISHED": return action.requestId !== state.requestId ? state : { ...state, products: action.products, view: "results" };
-    case "PRODUCT_DETAIL_SHOWN": return { ...state, products: [...state.products.filter((item) => item.id !== action.product.id), action.product], selectedProductId: action.product.id, view: "details" };
-    case "PRODUCT_SELECTED": return { ...state, selectedProductId: action.productId, view: "details" };
+    case "PRODUCT_DETAIL_SHOWN": return { ...state, products: [...state.products.filter((item) => item.id !== action.product.id), action.product], selectedColor: action.color ?? action.product.colors?.[0] ?? null, selectedProductId: action.product.id, selectedSize: action.size ?? action.product.sizes?.[0] ?? null, view: "details" };
+    case "PRODUCT_SELECTED": {
+      const product = state.products.find((item) => item.id === action.productId);
+      return { ...state, selectedColor: product?.colors?.[0] ?? null, selectedProductId: action.productId, selectedSize: product?.sizes?.[0] ?? null, view: "details" };
+    }
+    case "PRODUCT_VARIANT_SELECTED": return { ...state, selectedColor: action.color ?? state.selectedColor, selectedSize: action.size ?? state.selectedSize };
     case "CART_SHOWN": return { ...state, view: "cart" };
     case "CHECKOUT_SHOWN": return { ...state, checkout: action.checkout, view: "checkout" };
     case "ERROR_SHOWN": return { ...state, error: action.message, view: "error" };
@@ -58,9 +62,25 @@ export function AssistantExperienceProvider({ children }) {
   }, []);
 
   const showCart = useCallback(async (sessionId) => {
-    await syncCart(sessionId);
+    const cart = await syncCart(sessionId);
     await transitionDispatch(dispatch, { type: "CART_SHOWN" });
+    return cart;
   }, [syncCart]);
+
+  const selectProductVariant = useCallback(async (productId, { color, size } = {}) => {
+    let product = state.products.find((item) => item.id === productId);
+    if (!product) product = await getProduct(productId);
+    const canonicalColor = color
+      ? product.colors?.find((item) => item.localeCompare(color, "es", { sensitivity: "base" }) === 0)
+      : undefined;
+    if (color && !canonicalColor) throw new Error(`Color no disponible para ${product.name}.`);
+    if (state.selectedProductId !== productId) {
+      await transitionDispatch(dispatch, { type: "PRODUCT_DETAIL_SHOWN", product, color: canonicalColor, size });
+    } else {
+      await transitionDispatch(dispatch, { type: "PRODUCT_VARIANT_SELECTED", color: canonicalColor, size });
+    }
+    return { product, color: canonicalColor ?? state.selectedColor };
+  }, [state.products, state.selectedColor, state.selectedProductId]);
 
   const showCheckout = useCallback(async (checkoutId) => {
     const checkout = await getCheckout(checkoutId);
@@ -84,13 +104,14 @@ export function AssistantExperienceProvider({ children }) {
     ...state,
     selectedProduct,
     selectProduct,
+    selectProductVariant,
     showCart,
     showCheckout,
     showError,
     showProductDetail,
     showProducts,
     showWelcome,
-  }), [selectProduct, selectedProduct, showCart, showCheckout, showError, showProductDetail, showProducts, showWelcome, state]);
+  }), [selectProduct, selectProductVariant, selectedProduct, showCart, showCheckout, showError, showProductDetail, showProducts, showWelcome, state]);
 
   return <AssistantExperienceContext.Provider value={value}>{children}</AssistantExperienceContext.Provider>;
 }

@@ -10,7 +10,7 @@ function parseProductIds(productIds) {
 }
 
 export default function AssistantClientTools() {
-  const { showCart, showCheckout, showError, showProductDetail, showProducts } = useAssistantExperience();
+  const { selectProductVariant, showCart, showCheckout, showError, showProductDetail, showProducts } = useAssistantExperience();
 
   useConversationClientTool("mostrar_productos", async ({ product_ids: productIds }) => {
     try {
@@ -36,11 +36,24 @@ export default function AssistantClientTools() {
     }
   });
 
+  useConversationClientTool("seleccionar_color_producto", async ({ color, product_id: productId }) => {
+    try {
+      const selection = await selectProductVariant(productId, { color });
+      await waitForRender();
+      return `Color ${selection.color} seleccionado para ${selection.product.name}.`;
+    } catch (error) {
+      return error instanceof Error ? error.message : "No se pudo cambiar el color en pantalla.";
+    }
+  });
+
   useConversationClientTool("mostrar_carrito", async ({ session_id: sessionId }) => {
     try {
-      await showCart(sessionId);
+      const cart = await showCart(sessionId);
       await waitForRender();
-      return "Panel actualizado con el carrito real de esta conversación.";
+      const related = cart.recommendation;
+      return related
+        ? `Panel actualizado con el carrito real. También se muestra la recomendación ${related.name} (product_id=${related.id}); ofrecela una sola vez antes del checkout.`
+        : "Panel actualizado con el carrito real de esta conversación.";
     } catch {
       showError("No pudimos cargar el carrito real.");
       return "No se pudo actualizar el carrito en pantalla.";

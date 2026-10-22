@@ -13,7 +13,7 @@ from mcp.server.transport_security import TransportSecuritySettings
 API_BASE_URL = os.getenv("RYNX_API_URL", "http://127.0.0.1:8000").rstrip("/")
 MCP_ALLOWED_HOST = os.getenv("MCP_ALLOWED_HOST", "").strip()
 ADD_DEDUPE_WINDOW_SECONDS = 3.0
-_recent_cart_additions: dict[tuple[str, str, int], float] = {}
+_recent_cart_additions: dict[tuple[str, str, int, str, str], float] = {}
 _cart_add_lock = threading.Lock()
 
 mcp = MCPServer(
@@ -51,7 +51,7 @@ def buscar_productos(
     categoria: str | None = None,
     talle: int | None = None,
     precio_maximo: int | None = None,
-    limite: int = 10,
+    limite: int = 50,
 ) -> dict[str, Any]:
     """Busca productos por categoría, talle y/o precio máximo expresado en pesos argentinos."""
     params = {"limit": min(max(limite, 1), 50)}
@@ -77,9 +77,15 @@ def consultar_stock(product_id: str) -> dict[str, Any]:
 
 
 @mcp.tool()
-def agregar_al_carrito(session_id: str, product_id: str, cantidad: int = 1) -> dict[str, Any]:
-    """Agrega un producto al carrito de una sesión y devuelve el carrito validado por el servidor."""
-    key = (session_id, product_id, cantidad)
+def agregar_al_carrito(
+    session_id: str,
+    product_id: str,
+    cantidad: int = 1,
+    color: str | None = None,
+    talle: str | None = None,
+) -> dict[str, Any]:
+    """Agrega un producto con color y talle al carrito, y devuelve el carrito con una recomendación relacionada."""
+    key = (session_id, product_id, cantidad, color or "", talle or "")
     now = time.monotonic()
     with _cart_add_lock:
         last_added_at = _recent_cart_additions.get(key)
@@ -89,7 +95,12 @@ def agregar_al_carrito(session_id: str, product_id: str, cantidad: int = 1) -> d
         result = _request(
             "POST",
             f"/api/v1/carts/{session_id}/items",
-            json={"product_id": product_id, "quantity": cantidad},
+            json={
+                "product_id": product_id,
+                "quantity": cantidad,
+                "color": color,
+                "size": talle,
+            },
         )
         if result.get("ok"):
             _recent_cart_additions[key] = now

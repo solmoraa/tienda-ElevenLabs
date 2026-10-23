@@ -52,7 +52,7 @@ export default function AssistantClientTools() {
       await waitForRender();
       const related = cart.recommendation;
       return related
-        ? `Panel actualizado con el carrito real. También se muestra la recomendación ${related.name} (product_id=${related.id}); ofrecela una sola vez antes del checkout.`
+        ? `Panel actualizado con el carrito real. También se muestra la recomendación ${related.name}, color sugerido ${related.suggested_color} (product_id=${related.id}); ofrecela una sola vez antes del checkout.`
         : "Panel actualizado con el carrito real de esta conversación.";
     } catch {
       showError("No pudimos cargar el carrito real.");

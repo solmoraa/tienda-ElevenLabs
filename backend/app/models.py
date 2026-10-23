@@ -41,6 +41,7 @@ class ProductSummary(BaseModel):
     image_url: str
     subcategories: list[str] = Field(default_factory=list)
     product_type: str = "calzado"
+    suggested_color: str | None = None
 
 
 class ProductSearchResponse(BaseModel):
@@ -56,8 +57,8 @@ class StockResponse(BaseModel):
 class AddCartItemRequest(BaseModel):
     product_id: ProductId
     quantity: int = Field(default=1, ge=1, le=10)
-    color: str | None = None
-    size: str | None = None
+    color: str = Field(min_length=1)
+    size: str = Field(min_length=1)
 
 
 class CartItem(BaseModel):

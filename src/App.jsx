@@ -56,6 +56,7 @@ export default function App() {
   return (
     // El Provider habilita los hooks oficiales del SDK en todos sus componentes hijos.
     <ConversationProvider
+      serverLocation="global"
       // Algunos errores ocurren durante la sesión, no necesariamente dentro del click del botón.
       onError={(error) => {
         console.error("Error de conversación:", error);

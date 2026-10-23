@@ -19,7 +19,7 @@ export default function ProductDetails({ product, selectedColor, selectedSize, o
             product={product}
             className="assistant-detail-image"
             imageUrl={activeColor?.image_url ?? product.imageUrl}
-            videoUrl={isDefaultColor ? product.videoUrl : undefined}
+            videoUrl={isDefaultColor ? product.videoUrl : null}
           />
           {product.colorOptions?.length > 1 && (
             <div className="detail-thumbnails" aria-label="Colores disponibles">
@@ -45,7 +45,7 @@ export default function ProductDetails({ product, selectedColor, selectedSize, o
           <strong className="detail-price">{product.price}</strong>
           <div className="detail-selection">
             <span>Color</span>
-            <strong>{selectedColor}</strong>
+            <strong>{activeColor?.name}</strong>
           </div>
           <div className="detail-size-picker" aria-label="Elegir talle">
             <span>Talle</span>
@@ -61,7 +61,12 @@ export default function ProductDetails({ product, selectedColor, selectedSize, o
           </div>
           <p className="assistant-view-description">{product.description}</p>
           <p className="product-stock">{stockLabel}</p>
-          <button className="assistant-primary-action" type="button" onClick={() => onAddToCart(product, { color: selectedColor, size: selectedSize })}>Agregar al carrito</button>
+          <button
+            className="assistant-primary-action"
+            type="button"
+            disabled={!activeColor?.name || !selectedSize}
+            onClick={() => onAddToCart(product, { color: activeColor.name, size: selectedSize })}
+          >{selectedSize ? "Agregar al carrito" : "Elegí un talle"}</button>
           <button className="assistant-text-button" type="button" onClick={onBack}>Volver a resultados</button>
         </div>
       </div>

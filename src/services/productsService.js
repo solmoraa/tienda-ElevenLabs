@@ -28,3 +28,8 @@ export async function getProducts(productIds) {
   const products = await apiRequest(`/products/batch?ids=${encodeURIComponent(ids.join(","))}`);
   return products.map(normalizeProduct);
 }
+
+export async function getCatalogProducts() {
+  const response = await apiRequest("/products?limit=50");
+  return response.products.map(normalizeProduct);
+}

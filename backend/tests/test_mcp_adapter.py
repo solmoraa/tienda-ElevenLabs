@@ -10,7 +10,7 @@ def test_search_adapter_translates_parameters(monkeypatch) -> None:
         captured.update({"method": method, "url": url, **kwargs})
         return httpx.Response(200, json={"products": [], "count": 0})
 
-    monkeypatch.setattr(mcp_server.httpx, "request", fake_request)
+    monkeypatch.setattr(mcp_server._http_client, "request", fake_request)
 
     result = mcp_server.buscar_productos(categoria="outdoor", talle=40, precio_maximo=100000)
 
@@ -29,9 +29,9 @@ def test_cart_adapter_preserves_server_error(monkeypatch) -> None:
     def fake_request(*args: object, **kwargs: object) -> httpx.Response:
         return httpx.Response(409, json={"detail": "Stock insuficiente."})
 
-    monkeypatch.setattr(mcp_server.httpx, "request", fake_request)
+    monkeypatch.setattr(mcp_server._http_client, "request", fake_request)
 
-    result = mcp_server.agregar_al_carrito("sesion-1", "rynx-street-lime", 4, "Negro", "40")
+    result = mcp_server.agregar_al_carrito("sesion-1", "rynx-street-lime", "Negro", "40", 4)
 
     assert result == {"ok": False, "status_code": 409, "error": "Stock insuficiente."}
 
@@ -44,10 +44,10 @@ def test_cart_adapter_deduplicates_immediate_repeated_add(monkeypatch) -> None:
         calls.append((method, url))
         return httpx.Response(200, json={"session_id": "sesion-1", "items": []})
 
-    monkeypatch.setattr(mcp_server.httpx, "request", fake_request)
+    monkeypatch.setattr(mcp_server._http_client, "request", fake_request)
 
-    first = mcp_server.agregar_al_carrito("sesion-1", "run-aero-celeste")
-    second = mcp_server.agregar_al_carrito("sesion-1", "run-aero-celeste", 1)
+    first = mcp_server.agregar_al_carrito("sesion-1", "run-aero-celeste", "Celeste", "38")
+    second = mcp_server.agregar_al_carrito("sesion-1", "run-aero-celeste", "Celeste", "38", 1)
 
     assert first["ok"] is True
     assert second["ok"] is True
@@ -65,8 +65,8 @@ def test_cart_adapter_sends_color_and_size(monkeypatch) -> None:
         captured.update({"method": method, "url": url, **kwargs})
         return httpx.Response(200, json={"session_id": "sesion-1", "items": []})
 
-    monkeypatch.setattr(mcp_server.httpx, "request", fake_request)
-    result = mcp_server.agregar_al_carrito("sesion-1", "run-aero-celeste", 1, "Verde menta", "38")
+    monkeypatch.setattr(mcp_server._http_client, "request", fake_request)
+    result = mcp_server.agregar_al_carrito("sesion-1", "run-aero-celeste", "Verde menta", "38", 1)
 
     assert result["ok"] is True
     assert captured["json"] == {

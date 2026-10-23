@@ -1,11 +1,36 @@
+import { useEffect, useState } from "react";
 import Catalog from "../products/Catalog";
 import Footer from "../layout/Footer";
 import Header from "../layout/Header";
 import { featuredProducts } from "../../mockdata/products";
+import { getCatalogProducts } from "../../services/productsService";
 import Hero from "./Hero";
 import "./home.css";
 
 export default function HomePage({ onConversationError }) {
+  const [products, setProducts] = useState([]);
+  const [isCatalogLoading, setIsCatalogLoading] = useState(true);
+
+  useEffect(() => {
+    let isActive = true;
+
+    getCatalogProducts()
+      .then((catalogProducts) => {
+        if (isActive) setProducts(catalogProducts);
+      })
+      .catch((error) => {
+        console.error("No pudimos cargar el catálogo completo:", error);
+        if (isActive) setProducts(featuredProducts);
+      })
+      .finally(() => {
+        if (isActive) setIsCatalogLoading(false);
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
   return (
     <>
       <Header />
@@ -13,7 +38,7 @@ export default function HomePage({ onConversationError }) {
         <Hero onConversationError={onConversationError} />
 
         <section className="shopping-experience" aria-label="Tienda y asistente">
-          <Catalog products={featuredProducts} />
+          <Catalog products={products} isLoading={isCatalogLoading} />
         </section>
 
         <section className="how-it-works" id="como-funciona" aria-labelledby="how-it-works-title">

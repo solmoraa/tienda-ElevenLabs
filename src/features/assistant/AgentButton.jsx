@@ -22,7 +22,7 @@ export default function AgentButton({ onConversationError }) {
       }
 
       await requestMicrophonePermission();
-      await startSession({ agentId: AGENT_ID });
+      await startSession({ agentId: AGENT_ID, connectionType: "webrtc" });
     } catch (error) {
       console.error("Error al iniciar la conversación:", error);
       const message = getReadableError(error);

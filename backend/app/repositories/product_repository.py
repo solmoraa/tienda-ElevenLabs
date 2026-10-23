@@ -107,7 +107,7 @@ class ProductRepository:
                     ("Negro", "Imagen de ChatGPT 21 oct 2026, 14_02_49-2.png"),
                 ], available_sizes=sizes(35, 45),
                 description="Zapatilla urbana minimalista de líneas limpias y suela cómoda para todos los días.",
-                recommended_product_id="medias-deportivas-grip",
+                recommended_product_id="medias-outdoor-tres-cuartos",
             ),
             product(
                 product_id="heritage-court", name="Heritage Court", category="Deportivas",
@@ -117,7 +117,7 @@ class ProductRepository:
                     ("Azul marino", "Imagen de ChatGPT 21 oct 2026, 14_02_50-4.png"),
                 ], available_sizes=sizes(35, 45),
                 description="Zapatilla casual de cuero y gamuza con estética clásica y base flexible.",
-                recommended_product_id="medias-deportivas-grip",
+                recommended_product_id="medias-outdoor-tres-cuartos",
             ),
             product(
                 product_id="city-platform", name="City Platform", category="Deportivas",
@@ -127,7 +127,7 @@ class ProductRepository:
                     ("Gris", "Imagen de ChatGPT 21 oct 2026, 14_02_51-6.png"),
                 ], available_sizes=sizes(35, 41),
                 description="Zapatilla urbana de plataforma liviana con diseño monocromático y calce cómodo.",
-                recommended_product_id="medias-deportivas-grip",
+                recommended_product_id="medias-outdoor-tres-cuartos",
             ),
             product(
                 product_id="retro-court", name="Retro Court", category="Deportivas",
@@ -137,7 +137,7 @@ class ProductRepository:
                     ("Bordó y crema", "Imagen de ChatGPT 21 oct 2026, 14_02_52-8.png"),
                 ], available_sizes=sizes(36, 45),
                 description="Zapatilla urbana de inspiración retro con paneles de gamuza y suela de gran apoyo.",
-                recommended_product_id="medias-deportivas-grip",
+                recommended_product_id="medias-outdoor-tres-cuartos",
             ),
             product(
                 product_id="knit-street", name="Knit Street", category="Deportivas",
@@ -147,7 +147,7 @@ class ProductRepository:
                     ("Gris grafito", "Imagen de ChatGPT 21 oct 2026, 14_02_53-10.png"),
                 ], available_sizes=sizes(35, 45),
                 description="Zapatilla urbana de tejido respirable, liviana y versátil para uso diario.",
-                recommended_product_id="medias-deportivas-grip",
+                recommended_product_id="medias-outdoor-tres-cuartos",
             ),
             product(
                 product_id="futbol-pulse-fg", name="Pulse FG", category="Deportivas",
@@ -179,7 +179,7 @@ class ProductRepository:
                 color_images=[("Oliva y naranja", "Imagen de ChatGPT 21 oct 2026, 14_33_51.png")],
                 available_sizes=sizes(37, 45),
                 description="Calzado de trail con dibujo profundo, puntera protegida y soporte para terreno irregular.",
-                recommended_product_id="medias-deportivas-grip",
+                recommended_product_id="medias-outdoor-tres-cuartos",
             ),
             product(
                 product_id="road-cage", name="Road Cage", category="Deportivas",
@@ -278,6 +278,18 @@ class ProductRepository:
                 recommended_product_id=None,
             ),
             product(
+                product_id="medias-outdoor-tres-cuartos", name="Medias Outdoor 3/4", category="Accesorios",
+                subcategories=["medias", "outdoor", "tres cuartos", "uso diario"],
+                product_type="accesorio", price=15900, stock=50,
+                color_images=[
+                    ("Gris", "medias_outdoor_gris.png"),
+                    ("Negro", "medias_outdoor_negro.png"),
+                    ("Blanco", "medias_outdoor_blanco.png"),
+                ], available_sizes=["S", "M", "L"],
+                description="Medias tres cuartos respirables con refuerzo en talón y puntera, cómodas para uso diario, caminatas y actividades outdoor.",
+                recommended_product_id=None,
+            ),
+            product(
                 product_id="medias-formales-classic", name="Medias Formales Classic", category="Accesorios",
                 subcategories=["medias", "formal", "hombre"], product_type="accesorio", price=12900, stock=45,
                 color_images=[
@@ -322,12 +334,13 @@ class ProductRepository:
         return self._products.get(product_id)
 
     @staticmethod
-    def summary(item: Product, *, image_url: str | None = None) -> ProductSummary:
+    def summary(item: Product, *, image_url: str | None = None, suggested_color: str | None = None) -> ProductSummary:
         return ProductSummary(
             id=item.id, name=item.name, category=item.category, price=item.price,
             currency=item.currency, stock=item.stock, image_url=image_url or item.image_url,
             subcategories=item.subcategories,
             product_type=item.product_type,
+            suggested_color=suggested_color,
         )
 
     @staticmethod
@@ -340,6 +353,8 @@ class ProductRepository:
         category = cls._normalize(item.category)
         tags = {cls._normalize(value) for value in item.subcategories}
         name = cls._normalize(item.name)
+        if any(term in query for term in ("media outdoor", "medias outdoor", "tres cuartos")):
+            return item.product_type == "accesorio" and bool(tags & {"outdoor", "tres cuartos", "uso diario"})
         if any(term in query for term in ("cancan", "panty", "media formal", "media deportiva", "medias de futbol")):
             return item.product_type == "accesorio" and any(term in f"{name} {' '.join(tags)}" for term in query.split())
         if "stiletto" in query:

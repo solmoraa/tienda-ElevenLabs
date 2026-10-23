@@ -3,16 +3,22 @@
 import os
 import threading
 import time
-from typing import Any
+from typing import Annotated, Any
 
 import httpx
 from mcp.server.mcpserver import MCPServer
 from mcp.server.transport_security import TransportSecuritySettings
+from pydantic import Field
 
 
 API_BASE_URL = os.getenv("RYNX_API_URL", "http://127.0.0.1:8000").rstrip("/")
 MCP_ALLOWED_HOST = os.getenv("MCP_ALLOWED_HOST", "").strip()
 ADD_DEDUPE_WINDOW_SECONDS = 3.0
+_http_client = httpx.Client(
+    timeout=httpx.Timeout(8.0, connect=2.0),
+    limits=httpx.Limits(max_connections=20, max_keepalive_connections=10, keepalive_expiry=30.0),
+    trust_env=False,
+)
 _recent_cart_additions: dict[tuple[str, str, int, str, str], float] = {}
 _cart_add_lock = threading.Lock()
 
@@ -29,7 +35,7 @@ mcp = MCPServer(
 def _request(method: str, path: str, **kwargs: Any) -> dict[str, Any]:
     """Llama a FastAPI y convierte fallos esperables en resultados del dominio."""
     try:
-        response = httpx.request(method, f"{API_BASE_URL}{path}", timeout=10.0, **kwargs)
+        response = _http_client.request(method, f"{API_BASE_URL}{path}", **kwargs)
     except httpx.HTTPError:
         return {
             "ok": False,
@@ -61,7 +67,22 @@ def buscar_productos(
         params["size"] = talle
     if precio_maximo is not None:
         params["max_price"] = precio_maximo
-    return _request("GET", "/api/v1/products", params=params)
+    result = _request("GET", "/api/v1/products", params=params)
+    if not result.get("ok"):
+        return result
+
+    data = result["data"]
+    fields = ("id", "name", "category", "price", "currency", "stock", "subcategories")
+    return {
+        "ok": True,
+        "data": {
+            "products": [
+                {field: product[field] for field in fields if field in product}
+                for product in data.get("products", [])
+            ],
+            "count": data.get("count", len(data.get("products", []))),
+        },
+    }
 
 
 @mcp.tool()
@@ -80,12 +101,12 @@ def consultar_stock(product_id: str) -> dict[str, Any]:
 def agregar_al_carrito(
     session_id: str,
     product_id: str,
+    color: Annotated[str, Field(description="Color elegido explícitamente por el cliente entre los disponibles del producto.")],
+    talle: Annotated[str, Field(description="Talle elegido explícitamente por el cliente entre los disponibles del producto.")],
     cantidad: int = 1,
-    color: str | None = None,
-    talle: str | None = None,
 ) -> dict[str, Any]:
-    """Agrega un producto con color y talle al carrito, y devuelve el carrito con una recomendación relacionada."""
-    key = (session_id, product_id, cantidad, color or "", talle or "")
+    """Agrega solo la variante de color y talle elegida por el cliente; devuelve el carrito y una recomendación relacionada."""
+    key = (session_id, product_id, cantidad, color, talle)
     now = time.monotonic()
     with _cart_add_lock:
         last_added_at = _recent_cart_additions.get(key)

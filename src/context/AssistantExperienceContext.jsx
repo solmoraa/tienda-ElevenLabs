@@ -26,10 +26,10 @@ function experienceReducer(state, action) {
   switch (action.type) {
     case "SEARCH_STARTED": return { ...state, error: "", requestId: action.requestId, view: "loading" };
     case "SEARCH_FINISHED": return action.requestId !== state.requestId ? state : { ...state, products: action.products, view: "results" };
-    case "PRODUCT_DETAIL_SHOWN": return { ...state, products: [...state.products.filter((item) => item.id !== action.product.id), action.product], selectedColor: action.color ?? action.product.colors?.[0] ?? null, selectedProductId: action.product.id, selectedSize: action.size ?? action.product.sizes?.[0] ?? null, view: "details" };
+    case "PRODUCT_DETAIL_SHOWN": return { ...state, products: [...state.products.filter((item) => item.id !== action.product.id), action.product], selectedColor: action.color ?? action.product.colors?.[0] ?? null, selectedProductId: action.product.id, selectedSize: action.size ?? null, view: "details" };
     case "PRODUCT_SELECTED": {
       const product = state.products.find((item) => item.id === action.productId);
-      return { ...state, selectedColor: product?.colors?.[0] ?? null, selectedProductId: action.productId, selectedSize: product?.sizes?.[0] ?? null, view: "details" };
+      return { ...state, selectedColor: product?.colors?.[0] ?? null, selectedProductId: action.productId, selectedSize: null, view: "details" };
     }
     case "PRODUCT_VARIANT_SELECTED": return { ...state, selectedColor: action.color ?? state.selectedColor, selectedSize: action.size ?? state.selectedSize };
     case "CART_SHOWN": return { ...state, view: "cart" };
@@ -56,9 +56,12 @@ export function AssistantExperienceProvider({ children }) {
     await transitionDispatch(dispatch, { type: "SEARCH_FINISHED", products, requestId });
   }, []);
 
-  const showProductDetail = useCallback(async (productId) => {
+  const showProductDetail = useCallback(async (productId, { color, size } = {}) => {
     const product = await getProduct(productId);
-    await transitionDispatch(dispatch, { type: "PRODUCT_DETAIL_SHOWN", product });
+    const canonicalColor = color
+      ? product.colors?.find((item) => item.localeCompare(color, "es", { sensitivity: "base" }) === 0)
+      : undefined;
+    await transitionDispatch(dispatch, { type: "PRODUCT_DETAIL_SHOWN", product, color: canonicalColor, size });
   }, []);
 
   const showCart = useCallback(async (sessionId) => {

@@ -108,6 +108,20 @@ def test_cart_rejects_invalid_variant() -> None:
     assert "Color no disponible" in response.json()["detail"]
 
 
+def test_cart_requires_an_explicit_color_and_size() -> None:
+    without_variant = client.post(
+        "/api/v1/carts/session-demo/items",
+        json={"product_id": "run-aero-celeste", "quantity": 1},
+    )
+    assert without_variant.status_code == 422
+
+    without_size = client.post(
+        "/api/v1/carts/session-demo/items",
+        json={"product_id": "run-aero-celeste", "quantity": 1, "color": "Celeste"},
+    )
+    assert without_size.status_code == 422
+
+
 def test_cart_rejects_insufficient_stock() -> None:
     response = client.post(
         "/api/v1/carts/session-demo/items",
@@ -123,6 +137,7 @@ def test_cart_returns_related_recommendation() -> None:
         json={"product_id": "futbol-strike-verde", "color": "Negro y azul", "size": "41"},
     ).json()
     assert football["recommendation"]["id"] == "medias-futbol-match"
+    assert football["recommendation"]["suggested_color"] == "Negro y azul"
     assert "medias_futbol_negro_azul.png" in football["recommendation"]["image_url"]
 
     elegant = client.post(
@@ -130,12 +145,68 @@ def test_cart_returns_related_recommendation() -> None:
         json={"product_id": "formal-oxford-negro", "color": "Marrón", "size": "42"},
     ).json()
     assert elegant["recommendation"]["id"] == "medias-formales-classic"
+    assert elegant["recommendation"]["suggested_color"] == "Marrón"
 
     stiletto = client.post(
         "/api/v1/carts/stiletto/items",
         json={"product_id": "stiletto-nude-elegance", "color": "Rojo", "size": "37"},
     ).json()
     assert stiletto["recommendation"]["id"] == "medias-cancan-elegance"
+    assert stiletto["recommendation"]["suggested_color"] == "Bordó"
+
+
+def test_sports_recommendation_matches_aero_flow_tone() -> None:
+    celeste = client.post(
+        "/api/v1/carts/celeste/items",
+        json={"product_id": "run-aero-celeste", "color": "Celeste", "size": "38"},
+    ).json()["recommendation"]
+    assert celeste["suggested_color"] == "Blanco y azul"
+
+    mint = client.post(
+        "/api/v1/carts/mint/items",
+        json={"product_id": "run-aero-celeste", "color": "Verde menta", "size": "38"},
+    ).json()["recommendation"]
+    assert mint["suggested_color"] == "Gris y menta"
+
+
+def test_outdoor_and_everyday_shoes_recommend_three_quarter_socks() -> None:
+    outdoor = client.post(
+        "/api/v1/carts/outdoor/items",
+        json={"product_id": "trail-forge", "color": "Oliva y naranja", "size": "40"},
+    ).json()["recommendation"]
+    assert outdoor["id"] == "medias-outdoor-tres-cuartos"
+    assert outdoor["suggested_color"] == "Negro"
+    assert "medias_outdoor_negro.png" in outdoor["image_url"]
+
+    everyday = client.post(
+        "/api/v1/carts/everyday/items",
+        json={"product_id": "city-platform", "color": "Gris", "size": "38"},
+    ).json()["recommendation"]
+    assert everyday["id"] == "medias-outdoor-tres-cuartos"
+    assert everyday["suggested_color"] == "Gris"
+
+
+def test_unmatched_shoe_tone_uses_a_neutral_three_quarter_sock() -> None:
+    recommendation = client.post(
+        "/api/v1/carts/neutral-fallback/items",
+        json={"product_id": "trail-forge", "color": "Oliva y naranja", "size": "40"},
+    ).json()["recommendation"]
+    assert recommendation["id"] == "medias-outdoor-tres-cuartos"
+    assert recommendation["suggested_color"] == "Negro"
+
+
+def test_existing_matching_sock_pair_keeps_its_product_family() -> None:
+    recommendation = client.post(
+        "/api/v1/carts/matching-pair/items",
+        json={"product_id": "handball-pulse", "color": "Negro y naranja", "size": "40"},
+    ).json()["recommendation"]
+    assert recommendation["id"] == "medias-deportivas-grip"
+    assert recommendation["suggested_color"] == "Negro y azul"
+
+
+def test_outdoor_socks_are_searchable() -> None:
+    products = client.get("/api/v1/products", params={"category": "medias outdoor"}).json()["products"]
+    assert [product["id"] for product in products] == ["medias-outdoor-tres-cuartos"]
 
 
 def test_demo_carts_do_not_consume_stock_from_other_sessions() -> None:

@@ -23,24 +23,6 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
 
 El script instala dependencias del frontend y crea `backend\.venv` con FastAPI, Uvicorn, MCP y los demás paquetes necesarios.
 
-## Mostrar la tienda sin voz
-
-Abrí dos terminales PowerShell dentro de la raíz del repositorio.
-
-Terminal 1:
-
-```powershell
-.\scripts\start-backend.ps1
-```
-
-Terminal 2:
-
-```powershell
-.\scripts\start-frontend.ps1
-```
-
-Abrí `http://127.0.0.1:5173`. La documentación de la API queda en `http://127.0.0.1:8000/docs`.
-
 ## Mostrar la experiencia completa con ElevenLabs
 
 ElevenLabs está en la nube y no puede llamar directamente al `localhost` de la computadora que hace la demo. Ngrok publica temporalmente el MCP Server local.

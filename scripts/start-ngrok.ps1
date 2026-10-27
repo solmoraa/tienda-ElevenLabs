@@ -1,5 +1,11 @@
+$ErrorActionPreference = "Stop"
+
 if (-not (Get-Command ngrok -ErrorAction SilentlyContinue)) {
-  throw "No se encontró ngrok. Instalalo, configurá su authtoken y abrí una terminal nueva."
+  throw "No se encontró ngrok. Ejecutá .\scripts\setup.ps1 para instalarlo y configurarlo."
 }
 
-ngrok http 8001
+if ($env:NGROK_DOMAIN) {
+  ngrok http --domain $env:NGROK_DOMAIN 8001
+} else {
+  ngrok http 8001
+}

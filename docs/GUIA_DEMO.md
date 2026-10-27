@@ -1,124 +1,120 @@
-# Guía de instalación y demostración
+# Guía de entrega y demostración
 
-Esta guía permite levantar DR Sport en otra computadora Windows sin rutas personales ni configuración manual de Python o React.
+Esta guía permite entregar DR Sport a una persona que no participó del desarrollo. El objetivo es que clone el repositorio y ejecute un solo comando.
 
-## Requisitos
+## Preparación única antes de entregar
 
-- Git.
-- Node.js `20.19+` o `22.12+`.
-- Python `3.11+`.
-- ngrok con cuenta y authtoken configurado, solo para usar el agente de voz.
-- Acceso al workspace de ElevenLabs para actualizar temporalmente la URL MCP cuando ngrok cambie de dominio.
+En ElevenLabs, abrí el agente **Asistente de ventas** y agregá este host en Security > allowlist:
 
-No se debe colocar una API Key de ElevenLabs en React. El frontend usa el Agent ID público para iniciar la conversación.
+~~~text
+localhost:5173
+~~~
 
-## Instalación inicial
+ElevenLabs verifica el hostname de origen antes de abrir la conversación. localhost:5173 sirve para cualquier computadora; no depende de tu PC.
 
-```powershell
+El agente también necesita una URL HTTPS para su MCP Server. ElevenLabs no puede acceder al localhost del equipo de tu jefe.
+
+### La limitación de ngrok gratuito
+
+Ngrok gratuito da una URL temporal. El script la detecta y arranca el MCP correctamente, pero no puede cambiar por sí mismo la URL que el agente tiene guardada: eso exigiría administrar el agente con una credencial de ElevenLabs.
+
+Por eso hay dos modos:
+
+- **Desarrollo:** usá ngrok gratuito y actualizá manualmente la URL MCP en ElevenLabs cada vez que cambie.
+- **Entrega sin tocar ElevenLabs:** configurá antes una URL estable. Puede ser FastAPI/MCP desplegados en hosting, o un dominio reservado de ngrok.
+
+No compartas una API Key de ElevenLabs ni tu authtoken personal de ngrok dentro del repositorio.
+
+## Inicio con un solo comando
+
+En una computadora Windows:
+
+~~~powershell
 git clone https://github.com/solmoraa/tienda-ElevenLabs.git
 cd tienda-ElevenLabs
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
-.\scripts\setup.ps1
-```
-
-El script instala dependencias del frontend y crea `backend\.venv` con FastAPI, Uvicorn, MCP y los demás paquetes necesarios.
-
-## Mostrar la experiencia completa con ElevenLabs
-
-ElevenLabs está en la nube y no puede llamar directamente al `localhost` de la computadora que hace la demo. Ngrok publica temporalmente el MCP Server local.
-
-### Inicio recomendado: un único comando
-
-Desde la raíz del repositorio ejecutá:
-
-```powershell
 .\scripts\start-demo.ps1
-```
+~~~
 
-El script abre el backend, ngrok, el MCP Server y el frontend en ventanas separadas. También detecta el host HTTPS de ngrok y lo utiliza para iniciar MCP. Al finalizar, copiá la URL MCP que imprime el script y configurala en ElevenLabs.
+No es necesario ejecutar setup por separado: start-demo lo llama automáticamente.
 
-Los pasos manuales siguientes son una alternativa para diagnosticar cada proceso por separado.
+Abrí después:
 
-Abrí cuatro terminales PowerShell en la raíz del proyecto.
+~~~text
+http://localhost:5173
+~~~
 
-### 1. API FastAPI
+Aceptá el micrófono para iniciar la conversación.
 
-```powershell
-.\scripts\start-backend.ps1
-```
+## Qué hace start-demo
 
-### 2. Túnel público ngrok
+| Paso | Qué hace | Cuándo se repite |
+| --- | --- | --- |
+| Node.js LTS | Lo instala con winget si falta. | Luego solo verifica. |
+| Python 3.12 | Lo instala con winget si falta. | Luego solo verifica. |
+| ngrok | Lo instala con winget si falta. | Luego solo verifica. |
+| Authtoken ngrok | Lo pide si todavía no está configurado. | ngrok lo guarda en el perfil del usuario. |
+| Frontend | Ejecuta pnpm install para verificar React, Vite y @elevenlabs/react. | Reutiliza paquetes ya resueltos. |
+| Backend | Crea backend/.venv si falta e instala/verifica paquetes Python. | El entorno se reutiliza. |
+| Demo | Abre FastAPI, ngrok, MCP y Vite en ventanas separadas. | En cada demostración. |
 
-```powershell
-.\scripts\start-ngrok.ps1
-```
+El script muestra una URL como:
 
-Copiá el host de la línea que muestra ngrok. Ejemplo:
+~~~text
+URL MCP actual: https://ejemplo.ngrok-free.dev/mcp
+~~~
 
-```text
-Forwarding https://ejemplo.ngrok-free.dev -> http://localhost:8001
-```
+Esa URL debe coincidir con la configuración MCP del agente para que se ejecuten las herramientas:
 
-El host es `ejemplo.ngrok-free.dev`.
+- buscar_productos
+- obtener_detalle_producto
+- consultar_stock
+- agregar_al_carrito
+- eliminar_del_carrito
+- actualizar_variante_carrito
+- obtener_carrito
+- preparar_checkout
 
-### 3. MCP Server
+La integración se configura como HTTP reproducible o Streamable HTTP.
 
-```powershell
-.\scripts\start-mcp.ps1 -NgrokHost "ejemplo.ngrok-free.dev"
-```
+## Variables opcionales
 
-Usá el host real de ngrok, sin `https://` ni `/mcp`.
-
-### 4. Frontend
-
-```powershell
-.\scripts\start-frontend.ps1
-```
-
-Abrí `http://127.0.0.1:5173`, permití el micrófono y tocá **Hablar con el asistente**.
-
-## Configuración en ElevenLabs
-
-En la integración MCP del agente **Asistente de ventas**, usá:
-
-```text
-https://ejemplo.ngrok-free.dev/mcp
-```
-
-Elegí HTTP reproducible o Streamable HTTP, probá la conexión y aprobá estas herramientas:
-
-- `buscar_productos`
-- `obtener_detalle_producto`
-- `consultar_stock`
-- `agregar_al_carrito`
-- `eliminar_del_carrito`
-- `actualizar_variante_carrito`
-- `obtener_carrito`
-- `preparar_checkout`
-
-Si ngrok cambia de dominio, repetí los pasos de ngrok, MCP y actualización de URL en ElevenLabs.
-
-## Guion de prueba
-
-1. “Busco zapatillas de handball.”
-2. “Agregame las negras talle 40.”
-3. “Mostrame el carrito.”
-4. “Me agregaste mal el talle, cambialo al 41.”
-5. “Sacame esa variante del carrito.”
-
-También se puede eliminar una línea directamente desde el botón **Eliminar** del carrito.
-
-## Problemas frecuentes
-
-| Problema | Acción |
+| Variable | Uso |
 | --- | --- |
-| Falta `backend\.venv\Scripts\python.exe` | Ejecutar `.\scripts\setup.ps1`. |
-| No se reconoce `corepack` | Instalar Node.js compatible y abrir una terminal nueva. |
-| No abre el frontend | Verificar que el puerto 5173 esté libre y ejecutar `start-frontend.ps1`. |
-| ElevenLabs no conecta | Verificar backend, ngrok y MCP; la URL debe terminar en `/mcp`. |
-| Falla el host MCP | Pasar solo el host de ngrok a `-NgrokHost`. |
-| El agente no llama una herramienta nueva | Reiniciar MCP, volver a probar la integración y aprobar la herramienta. |
+| NGROK_AUTHTOKEN | Evita que el instalador pregunte el token de ngrok. |
+| NGROK_DOMAIN | Usa un dominio reservado de ngrok en lugar de uno temporal. |
 
-## Recomendación para presentaciones futuras
+Ejemplo:
 
-Ngrok gratuito cambia de URL. Para no modificar ElevenLabs en cada demo, desplegá FastAPI y el MCP Server en un hosting con URL HTTPS estable, o usá un dominio reservado de ngrok. Esa URL se configura una sola vez en ElevenLabs.
+~~~powershell
+$env:NGROK_DOMAIN = "demo-tuempresa.ngrok.app"
+.\scripts\start-demo.ps1
+~~~
+
+El dominio debe pertenecer a la cuenta de ngrok usada en esa computadora.
+
+## Prueba funcional
+
+1. Pedí zapatillas de handball.
+2. Agregá una variante.
+3. Mostrá el carrito.
+4. Usá el botón + para sumar la misma variante.
+5. Usá − para quitar solo una unidad.
+6. Usá Eliminar para sacar toda la línea.
+7. Pedí cambiar color o talle por voz.
+8. Pedí finalizar la compra.
+
+## Solución de problemas
+
+| Problema | Solución |
+| --- | --- |
+| Falta winget | Instalá App Installer desde Microsoft Store y repetí el comando. |
+| ngrok pide autenticación | Creá una cuenta gratuita y pegá el authtoken cuando se solicite. |
+| El agente habla pero no usa el carrito | La URL MCP configurada no coincide con la URL actual. Usá URL estable o actualizá la integración MCP. |
+| No funciona el micrófono | Permití micrófono para localhost en el navegador. |
+| ElevenLabs rechaza la sesión | Agregá localhost:5173 a la allowlist del agente. |
+| El carrito se vacía | Es esperado: la persistencia actual es en memoria. |
+
+## Recomendación final
+
+Para una presentación donde la persona no tenga que tocar ElevenLabs, desplegá backend y MCP con una URL HTTPS fija y configurala una sola vez en el agente. Con ngrok gratuito no existe una forma segura de evitar que la URL cambie entre demostraciones.

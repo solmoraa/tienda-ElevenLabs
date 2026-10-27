@@ -1,5 +1,5 @@
 import { useConversationClientTool } from "@elevenlabs/react";
-import { useAssistantExperience } from "../../context/AssistantExperienceContext";
+import { useAssistantExperience } from "../context/AssistantExperienceContext";
 
 function waitForRender() {
   return new Promise((resolve) => window.requestAnimationFrame(resolve));

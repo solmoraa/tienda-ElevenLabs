@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Catalog from "../products/Catalog";
 import Footer from "../layout/Footer";
 import Header from "../layout/Header";
-import { featuredProducts } from "../../mockdata/products";
+import { featuredProducts } from "../../models/products";
 import { getCatalogProducts } from "../../services/productsService";
 import Hero from "./Hero";
 import "./home.css";

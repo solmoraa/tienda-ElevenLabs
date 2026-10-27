@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
-import { getCart } from "../services/cartService";
-import { formatPrice } from "../utils/currency";
+import { getCart } from "../../services/cartService";
+import { formatPrice } from "../../utils/currency";
 
 const CartContext = createContext(null);
 

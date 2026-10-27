@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { useConversationControls, useConversationMode } from "@elevenlabs/react";
 import AssistantStatus from "../../components/AssistantStatus/AssistantStatus";
-import { useAssistantExperience } from "../../context/AssistantExperienceContext";
-import { useCart } from "../../context/CartContext";
+import { useAssistantExperience } from "../../controllers/context/AssistantExperienceContext";
+import { useCart } from "../../controllers/context/CartContext";
 import CartView from "../cart/CartView";
 import ProductDetails from "../products/ProductDetails";
 import ProductResults from "../products/ProductResults";

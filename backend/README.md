@@ -16,6 +16,8 @@ app/
 
 Cuando se incorpore una base de datos, se reemplazará el repositorio en memoria; rutas, controladores y servicios podrán conservarse.
 
+> Todos los comandos de este documento se ejecutan desde `backend/`. Para iniciar React, consultá el [README principal](../README.md) y usá `frontend/`.
+
 ## Preparación
 
 Con Python 3.11 o superior instalado, desde `backend/`:

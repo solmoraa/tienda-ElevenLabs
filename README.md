@@ -2,6 +2,20 @@
 
 Demo de una tienda React con un agente de ventas de ElevenLabs y un servidor MCP local. El agente puede buscar productos, consultar stock y administrar un carrito en memoria.
 
+## Estructura
+
+```text
+backend/                  API FastAPI y servidor MCP
+frontend/                 Aplicación React/Vite
+  src/models/             Datos y entidades del dominio
+  src/views/              Pantallas y presentación visual
+  src/controllers/        Estado, eventos y Client Tools
+  src/services/           Comunicación con la API
+  src/components/         Componentes visuales reutilizables
+```
+
+> Ejecutá los comandos de React desde `frontend/` y los de FastAPI/MCP desde `backend/`.
+
 ## Qué se necesita
 
 - Node.js (incluye Corepack).
@@ -13,10 +27,10 @@ Demo de una tienda React con un agente de ventas de ElevenLabs y un servidor MCP
 
 ## Primera instalación
 
-Abrí PowerShell en la carpeta raíz del proyecto:
+Abrí PowerShell en la carpeta del frontend:
 
 ```powershell
-cd C:\Users\HP\Downloads\Ecommerce-ElevenLabs\tienda-ElevenLabs
+cd C:\Users\HP\Downloads\Ecommerce-ElevenLabs\tienda-ElevenLabs\frontend
 ```
 
 Instalá el frontend:
@@ -28,7 +42,7 @@ Instalá el frontend:
 Creá e instalá el entorno Python del backend (solo la primera vez):
 
 ```powershell
-cd backend
+cd ..\backend
 py -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 cd ..
@@ -84,7 +98,7 @@ Reemplazá `item-hastily-release.ngrok-free.dev` por el host que mostró ngrok, 
 ### 4. Frontend React — terminal 4
 
 ```powershell
-cd C:\Users\HP\Downloads\Ecommerce-ElevenLabs\tienda-ElevenLabs
+cd C:\Users\HP\Downloads\Ecommerce-ElevenLabs\tienda-ElevenLabs\frontend
 & "C:\Program Files\nodejs\corepack.cmd" pnpm dev
 ```
 

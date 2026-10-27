@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useMemo, useReducer, useRef } from "react";
 import { flushSync } from "react-dom";
-import { getCheckout } from "../services/checkoutService";
-import { getProduct, getProducts } from "../services/productsService";
+import { getCheckout } from "../../services/checkoutService";
+import { getProduct, getProducts } from "../../services/productsService";
 import { useCart } from "./CartContext";
 
 const AssistantExperienceContext = createContext(null);

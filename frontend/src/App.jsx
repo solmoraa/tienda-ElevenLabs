@@ -1,11 +1,11 @@
 import { useCallback, useState } from "react";
 import { ConversationProvider, useConversationControls, useConversationStatus } from "@elevenlabs/react";
-import AssistantClientTools from "./features/assistant/AssistantClientTools";
-import AssistantPanel from "./features/assistant/AssistantPanel";
-import CheckoutView from "./features/checkout/CheckoutView";
-import HomePage from "./features/home/HomePage";
-import { AssistantExperienceProvider, useAssistantExperience } from "./context/AssistantExperienceContext";
-import { CartProvider } from "./context/CartContext";
+import AssistantClientTools from "./controllers/assistant/AssistantClientTools";
+import { AssistantExperienceProvider, useAssistantExperience } from "./controllers/context/AssistantExperienceContext";
+import { CartProvider } from "./controllers/context/CartContext";
+import AssistantPanel from "./views/assistant/AssistantPanel";
+import CheckoutView from "./views/checkout/CheckoutView";
+import HomePage from "./views/home/HomePage";
 
 function Storefront({ conversationError, onConversationError }) {
   const { endSession } = useConversationControls();

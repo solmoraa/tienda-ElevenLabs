@@ -1,6 +1,13 @@
 # DR Sport — E-commerce conversacional
 
+> **Guía de entrega:** para instalar y mostrar esta demo desde otra computadora, seguí [docs/GUIA_DEMO.md](docs/GUIA_DEMO.md). Los scripts de `scripts/` simplifican todos los comandos de Windows.
+>
+
 Demo de una tienda React con un agente de ventas de ElevenLabs y un servidor MCP local. El agente puede buscar productos, consultar stock y administrar un carrito en memoria.
+
+## Versión
+
+`1.1.0` — incorpora la eliminación de productos del carrito y el cambio de color o talle de una variante ya agregada.
 
 ## Estructura
 

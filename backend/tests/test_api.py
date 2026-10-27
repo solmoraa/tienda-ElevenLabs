@@ -31,6 +31,15 @@ def test_daily_use_aliases_return_all_casual_models() -> None:
         assert ids_for(category) == expected
 
 
+def test_casual_models_are_outdoor_not_sports() -> None:
+    expected = {"urban-minimal", "heritage-court", "city-platform", "retro-court", "knit-street"}
+    outdoor = client.get("/api/v1/products", params={"category": "outdoor"}).json()["products"]
+    outdoor_by_id = {product["id"]: product for product in outdoor}
+    assert expected <= outdoor_by_id.keys()
+    assert all(outdoor_by_id[product_id]["category"] == "Outdoor" for product_id in expected)
+    assert expected.isdisjoint(ids_for("deporte"))
+
+
 def test_three_footwear_categories_are_exposed() -> None:
     products = client.get("/api/v1/products", params={"category": "zapatillas"}).json()["products"]
     assert {product["category"] for product in products} == {"Deportivas", "Elegantes", "Outdoor"}
@@ -39,15 +48,33 @@ def test_three_footwear_categories_are_exposed() -> None:
 
 def test_sports_search_returns_every_sports_model() -> None:
     products = client.get("/api/v1/products", params={"category": "deporte"}).json()["products"]
-    assert len(products) == 18
+    assert len(products) == 12
     assert {product["category"] for product in products} == {"Deportivas"}
-    assert {"run-aero-celeste", "futbol-strike-verde", "handball-court-azul", "tenis-rally-turquesa"} <= {product["id"] for product in products}
+    assert {"run-aero-celeste", "futbol-strike-verde", "handball-court-azul", "tenis-rally-turquesa", "trail-forge"} <= {product["id"] for product in products}
+
+
+def test_trail_forge_is_sports_footwear_for_climbing_and_mountain_searches() -> None:
+    product = client.get("/api/v1/products/trail-forge").json()
+    assert product["category"] == "Deportivas"
+    assert {"trail", "escalada", "montaña"} <= set(product["subcategories"])
+    assert ids_for("escalada") == {"trail-forge"}
+    assert ids_for("montaña") == {"trail-forge"}
 
 
 def test_generic_sneaker_search_returns_all_footwear_not_accessories() -> None:
     products = client.get("/api/v1/products", params={"category": "zapatillas"}).json()["products"]
-    assert len(products) == 24
+    assert len(products) == 22
     assert not any(product["id"].startswith("medias-") for product in products)
+
+
+def test_pulse_fg_is_one_product_with_three_colors() -> None:
+    assert ids_for("botines") == {"futbol-strike-verde", "futbol-pulse-fg"}
+    product = client.get("/api/v1/products/futbol-pulse-fg").json()
+    assert product["name"] == "Pulse FG"
+    assert product["colors"] == ["Blanco, azul y lima", "Negro, rojo y dorado", "Blanco y turquesa"]
+    assert len(product["color_options"]) == 3
+    assert client.get("/api/v1/products/futbol-titan-fg").status_code == 404
+    assert client.get("/api/v1/products/futbol-glide-fg").status_code == 404
 
 
 def test_size_search_combines_with_category() -> None:
@@ -125,7 +152,7 @@ def test_cart_requires_an_explicit_color_and_size() -> None:
 def test_cart_rejects_insufficient_stock() -> None:
     response = client.post(
         "/api/v1/carts/session-demo/items",
-        json={"product_id": "futbol-titan-fg", "quantity": 5, "color": "Negro, rojo y dorado", "size": "40"},
+        json={"product_id": "trail-forge", "quantity": 8, "color": "Oliva y naranja", "size": "40"},
     )
     assert response.status_code == 409
     assert response.json()["detail"] == "Stock insuficiente."
@@ -210,10 +237,10 @@ def test_outdoor_socks_are_searchable() -> None:
 
 
 def test_demo_carts_do_not_consume_stock_from_other_sessions() -> None:
-    key = ("futbol-titan-fg", "Negro, rojo y dorado", "40")
+    key = ("futbol-pulse-fg", "Negro, rojo y dorado", "40")
     assert cart_repository.try_add("first-session", key, 4, 4)
     assert cart_repository.try_add("second-session", key, 4, 4)
-    assert "futbol-titan-fg" in ids_for("fútbol")
+    assert "futbol-pulse-fg" in ids_for("fútbol")
 
 
 def test_removes_cart_item() -> None:

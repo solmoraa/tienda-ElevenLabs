@@ -100,7 +100,7 @@ class ProductRepository:
                 recommended_product_id="medias-deportivas-grip",
             ),
             product(
-                product_id="urban-minimal", name="Urban Minimal", category="Deportivas",
+                product_id="urban-minimal", name="Urban Minimal", category="Outdoor",
                 subcategories=["casual", "urbano", "día a día"], price=98900, stock=18,
                 color_images=[
                     ("Crema", "Imagen de ChatGPT 21 oct 2026, 14_02_48-1.png"),
@@ -110,7 +110,7 @@ class ProductRepository:
                 recommended_product_id="medias-outdoor-tres-cuartos",
             ),
             product(
-                product_id="heritage-court", name="Heritage Court", category="Deportivas",
+                product_id="heritage-court", name="Heritage Court", category="Outdoor",
                 subcategories=["casual", "urbano", "día a día"], price=104900, stock=15,
                 color_images=[
                     ("Beige", "Imagen de ChatGPT 21 oct 2026, 14_02_50-3.png"),
@@ -120,7 +120,7 @@ class ProductRepository:
                 recommended_product_id="medias-outdoor-tres-cuartos",
             ),
             product(
-                product_id="city-platform", name="City Platform", category="Deportivas",
+                product_id="city-platform", name="City Platform", category="Outdoor",
                 subcategories=["casual", "urbano", "plataforma"], price=109900, stock=11,
                 color_images=[
                     ("Rosa", "Imagen de ChatGPT 21 oct 2026, 14_02_51-5.png"),
@@ -130,7 +130,7 @@ class ProductRepository:
                 recommended_product_id="medias-outdoor-tres-cuartos",
             ),
             product(
-                product_id="retro-court", name="Retro Court", category="Deportivas",
+                product_id="retro-court", name="Retro Court", category="Outdoor",
                 subcategories=["casual", "urbano", "retro"], price=114900, stock=14,
                 color_images=[
                     ("Oliva y crema", "Imagen de ChatGPT 21 oct 2026, 14_02_52-7.png"),
@@ -140,7 +140,7 @@ class ProductRepository:
                 recommended_product_id="medias-outdoor-tres-cuartos",
             ),
             product(
-                product_id="knit-street", name="Knit Street", category="Deportivas",
+                product_id="knit-street", name="Knit Street", category="Outdoor",
                 subcategories=["casual", "urbano", "día a día"], price=99900, stock=16,
                 color_images=[
                     ("Beige", "Imagen de ChatGPT 21 oct 2026, 14_02_53-9.png"),
@@ -151,34 +151,22 @@ class ProductRepository:
             ),
             product(
                 product_id="futbol-pulse-fg", name="Pulse FG", category="Deportivas",
-                subcategories=["fútbol", "botines", "césped natural"], price=136900, stock=9,
-                color_images=[("Blanco, azul y lima", "Imagen de ChatGPT 21 oct 2026, 14_30_46-1.png")],
+                subcategories=["fútbol", "botines", "césped natural"], price=136900, stock=21,
+                color_images=[
+                    ("Blanco, azul y lima", "Imagen de ChatGPT 21 oct 2026, 14_30_46-1.png"),
+                    ("Negro, rojo y dorado", "Imagen de ChatGPT 21 oct 2026, 14_30_47-2.png"),
+                    ("Blanco y turquesa", "Imagen de ChatGPT 21 oct 2026, 14_30_49-3.png"),
+                ],
                 available_sizes=sizes(38, 45),
-                description="Botín liviano de velocidad con tapones para césped natural y ajuste anatómico.",
+                description="Botín liviano de fútbol con ajuste anatómico, empeine flexible y placa de tapones para aceleraciones y cambios de dirección en césped natural.",
                 recommended_product_id="medias-futbol-match",
             ),
             product(
-                product_id="futbol-titan-fg", name="Titan FG", category="Deportivas",
-                subcategories=["fútbol", "botines", "césped natural"], price=149900, stock=4,
-                color_images=[("Negro, rojo y dorado", "Imagen de ChatGPT 21 oct 2026, 14_30_47-2.png")],
-                available_sizes=sizes(39, 45),
-                description="Botín de caña media con estructura reforzada y placa firme para máxima tracción.",
-                recommended_product_id="medias-futbol-match",
-            ),
-            product(
-                product_id="futbol-glide-fg", name="Glide FG", category="Deportivas",
-                subcategories=["fútbol", "botines", "césped natural"], price=132900, stock=8,
-                color_images=[("Blanco y turquesa", "Imagen de ChatGPT 21 oct 2026, 14_30_49-3.png")],
-                available_sizes=sizes(38, 45),
-                description="Botín flexible de toque limpio y placa de tracción para aceleraciones rápidas.",
-                recommended_product_id="medias-futbol-match",
-            ),
-            product(
-                product_id="trail-forge", name="Trail Forge", category="Outdoor",
-                subcategories=["trail", "senderismo", "trekking"], price=139900, stock=7,
+                product_id="trail-forge", name="Trail Forge", category="Deportivas",
+                subcategories=["trail", "senderismo", "trekking", "escalada", "montaña"], price=139900, stock=7,
                 color_images=[("Oliva y naranja", "Imagen de ChatGPT 21 oct 2026, 14_33_51.png")],
                 available_sizes=sizes(37, 45),
-                description="Calzado de trail con dibujo profundo, puntera protegida y soporte para terreno irregular.",
+                description="Zapatilla deportiva de montaña para trail y escalada, con dibujo profundo, puntera protegida y soporte para terreno irregular.",
                 recommended_product_id="medias-outdoor-tres-cuartos",
             ),
             product(
@@ -369,7 +357,9 @@ class ProductRepository:
             return any("taco" in tag for tag in tags)
         if any(term in query for term in ("elegante", "formal", "vestir", "fiesta")):
             return category == "elegantes"
-        if any(term in query for term in ("outdoor", "trail", "trekking", "senderismo", "montana")):
+        if any(term in query for term in ("trail", "trekking", "senderismo", "montana", "escalada", "climbing")):
+            return item.product_type == "calzado" and bool(tags & {"trail", "senderismo", "trekking", "escalada", "montana"})
+        if "outdoor" in query:
             return category == "outdoor"
         if query in {"botin", "botines"} or any(term in query for term in ("botin de futbol", "botines de futbol", "futbol", "tapones")):
             return item.product_type == "calzado" and "futbol" in tags

@@ -22,7 +22,7 @@ export default function AssistantPanel({ errorMessage, onCheckoutReady, onClose,
 
 function PanelView({ onCheckoutReady }) {
   const experience = useAssistantExperience();
-  const { items: cartItems, recommendation, removeItem, total: cartTotal } = useCart();
+  const { addItem, items: cartItems, recommendation, removeItem, total: cartTotal } = useCart();
   const { checkout, error, products, selectedColor, selectedProduct, selectedSize, selectProduct, selectProductVariant, showProductDetail, showProducts, showWelcome, view } = experience;
   const { sendContextualUpdate, sendUserMessage } = useConversationControls();
   const { isListening, isSpeaking } = useConversationMode();
@@ -55,7 +55,6 @@ function PanelView({ onCheckoutReady }) {
     sendContextualUpdate(`El cliente seleccionó manualmente ${detail} para ${selectedProduct.name} (product_id=${selectedProduct.id}). Usá esa variante si luego pide agregarlo.`);
   };
 
-  if (view === "loading") return <section className="assistant-view assistant-loading" aria-live="polite"><h3>Buscando opciones…</h3><p>Consultando productos reales.</p></section>;
   const handleRemoveItem = async ({ product, quantity }) => {
     try {
       await removeItem({
@@ -72,9 +71,46 @@ function PanelView({ onCheckoutReady }) {
     }
   };
 
+  const notifyQuantityChange = (action, product, quantity) => {
+    sendContextualUpdate(
+      `El cliente ${action} una unidad de ${product.name} (product_id=${product.id}), color ${product.selectedColor}, talle ${product.selectedSize}. El carrito ya está actualizado: cantidad actual ${quantity}.`,
+    );
+  };
+
+  const handleIncreaseItem = async ({ product, quantity }) => {
+    try {
+      const cart = await addItem({
+        productId: product.id,
+        color: product.selectedColor,
+        size: product.selectedSize,
+        quantity: 1,
+      });
+      const item = cart.items.find((current) => current.product_id === product.id && current.selected_color === product.selectedColor && current.selected_size === product.selectedSize);
+      notifyQuantityChange("agregó", product, item?.quantity ?? quantity + 1);
+    } catch (addError) {
+      console.error("No se pudo agregar una unidad al carrito:", addError);
+    }
+  };
+
+  const handleDecreaseItem = async ({ product }) => {
+    try {
+      const cart = await removeItem({
+        productId: product.id,
+        color: product.selectedColor,
+        size: product.selectedSize,
+        quantity: 1,
+      });
+      const item = cart.items.find((current) => current.product_id === product.id && current.selected_color === product.selectedColor && current.selected_size === product.selectedSize);
+      notifyQuantityChange("quitó", product, item?.quantity ?? 0);
+    } catch (removeError) {
+      console.error("No se pudo quitar una unidad del carrito:", removeError);
+    }
+  };
+
+  if (view === "loading") return <section className="assistant-view assistant-loading" aria-live="polite"><h3>Buscando opciones…</h3><p>Consultando productos reales.</p></section>;
   if (view === "results") return <ProductResults products={products} onSelect={handleProductSelection} onShowWelcome={showWelcome} />;
   if (view === "details") return <ProductDetails product={selectedProduct} selectedColor={selectedColor} selectedSize={selectedSize} onVariantChange={handleVariantChange} onAddToCart={handleAddToCart} onBack={() => showProducts(products.map((product) => product.id))} />;
-  if (view === "cart") return <CartView items={cartItems} recommendation={recommendation} total={cartTotal} onRemoveItem={handleRemoveItem} onViewRecommendation={() => showProductDetail(recommendation.id, { color: recommendation.suggested_color })} onCheckout={() => sendUserMessage("Quiero pagar mi carrito y confirmar el checkout.")} onContinueShopping={showWelcome} />;
+  if (view === "cart") return <CartView items={cartItems} recommendation={recommendation} total={cartTotal} onDecreaseItem={handleDecreaseItem} onIncreaseItem={handleIncreaseItem} onRemoveItem={handleRemoveItem} onViewRecommendation={() => showProductDetail(recommendation.id, { color: recommendation.suggested_color })} onCheckout={() => sendUserMessage("Quiero pagar mi carrito y confirmar el checkout.")} onContinueShopping={showWelcome} />;
   if (view === "checkout") return <section className="assistant-view assistant-loading" aria-live="polite"><span className="voice-orb voice-orb--speaking" /><h3>Abriendo el pago…</h3></section>;
   if (view === "error") return <section className="assistant-view assistant-state-error" aria-live="polite"><p className="assistant-view-kicker">NO PUDIMOS CONTINUAR</p><h3>Algo salió mal.</h3><p className="assistant-view-description">{error}</p></section>;
   return <section className="assistant-welcome"><span className={`voice-orb voice-orb--hero ${isSpeaking ? "voice-orb--speaking" : ""}`} aria-hidden="true" /><h3>{isSpeaking ? "Hablando…" : isListening ? "Escuchando…" : "Conversación activa"}</h3><p>Contale al asistente qué estás buscando.</p></section>;

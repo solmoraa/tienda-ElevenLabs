@@ -27,6 +27,18 @@ El script instala dependencias del frontend y crea `backend\.venv` con FastAPI, 
 
 ElevenLabs está en la nube y no puede llamar directamente al `localhost` de la computadora que hace la demo. Ngrok publica temporalmente el MCP Server local.
 
+### Inicio recomendado: un único comando
+
+Desde la raíz del repositorio ejecutá:
+
+```powershell
+.\scripts\start-demo.ps1
+```
+
+El script abre el backend, ngrok, el MCP Server y el frontend en ventanas separadas. También detecta el host HTTPS de ngrok y lo utiliza para iniciar MCP. Al finalizar, copiá la URL MCP que imprime el script y configurala en ElevenLabs.
+
+Los pasos manuales siguientes son una alternativa para diagnosticar cada proceso por separado.
+
 Abrí cuatro terminales PowerShell en la raíz del proyecto.
 
 ### 1. API FastAPI

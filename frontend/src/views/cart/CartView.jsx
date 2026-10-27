@@ -1,7 +1,7 @@
 import { formatPrice } from "../../utils/currency";
 import "./cart.css";
 
-export default function CartView({ items, recommendation, total, onCheckout, onContinueShopping, onRemoveItem, onViewRecommendation }) {
+export default function CartView({ items, recommendation, total, onCheckout, onContinueShopping, onDecreaseItem, onIncreaseItem, onRemoveItem, onViewRecommendation }) {
   return (
     <section className="assistant-view" aria-live="polite">
       <p className="assistant-view-kicker">TU CARRITO</p>
@@ -22,6 +22,11 @@ export default function CartView({ items, recommendation, total, onCheckout, onC
                 <span><strong>{product.name}</strong><small>Color {product.selectedColor} · Talle {product.selectedSize} · Cantidad {quantity}</small></span>
                 <div className="cart-line-actions">
                   <strong>{formatPrice(product.priceValue * quantity)}</strong>
+                  <div className="cart-quantity-control" aria-label={`Cantidad de ${product.name}`}>
+                    <button type="button" onClick={() => onDecreaseItem({ product, quantity })} aria-label={`Quitar una unidad de ${product.name}`}>−</button>
+                    <output aria-label={`${quantity} unidades`}>{quantity}</output>
+                    <button type="button" onClick={() => onIncreaseItem({ product, quantity })} aria-label={`Agregar una unidad de ${product.name}`}>+</button>
+                  </div>
                   <button type="button" onClick={() => onRemoveItem({ product, quantity })}>Eliminar</button>
                 </div>
               </li>

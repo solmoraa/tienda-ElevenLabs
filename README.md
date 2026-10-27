@@ -31,6 +31,16 @@ Este paso instala las dependencias del frontend y crea `backend\.venv` con las d
 
 ## Levantar la demo con voz
 
+Después de la instalación inicial, el modo recomendado es ejecutar un solo comando desde la raíz del repositorio:
+
+```powershell
+.\scripts\start-demo.ps1
+```
+
+El script abre las cuatro ventanas necesarias (backend, ngrok, MCP y frontend), obtiene automáticamente el host público de ngrok e inicia el MCP con ese host. Al terminar, muestra la URL que hay que configurar en ElevenLabs. Abrí `http://127.0.0.1:5173`, permití el micrófono y tocá **Hablar con el asistente**.
+
+Los pasos manuales siguientes quedan únicamente como referencia para diagnosticar un servicio puntual.
+
 Abrí cuatro terminales PowerShell en la raíz del repositorio y mantenelas abiertas.
 
 ### 1. Backend FastAPI

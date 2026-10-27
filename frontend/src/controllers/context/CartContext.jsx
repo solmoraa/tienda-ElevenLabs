@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
-import { getCart, removeCartItem, updateCartItem } from "../../services/cartService";
+import { addCartItem, getCart, removeCartItem, updateCartItem } from "../../services/cartService";
 import { formatPrice } from "../../utils/currency";
 
 const CartContext = createContext(null);
@@ -17,6 +17,12 @@ export function CartProvider({ children }) {
     setCart({ items: serverCart.items, recommendation: serverCart.recommendation, sessionId: serverCart.session_id });
     return serverCart;
   }, []);
+
+  const addItem = useCallback(async ({ productId, color, size, quantity = 1 }) => {
+    if (!cart.sessionId) throw new Error("No hay un carrito activo para modificar.");
+    const serverCart = await addCartItem(cart.sessionId, { productId, color, size, quantity });
+    return applyServerCart(serverCart);
+  }, [applyServerCart, cart.sessionId]);
 
   const removeItem = useCallback(async ({ productId, color, size, quantity }) => {
     if (!cart.sessionId) throw new Error("No hay un carrito activo para modificar.");
@@ -61,6 +67,7 @@ export function CartProvider({ children }) {
   );
 
   const value = useMemo(() => ({
+    addItem,
     items,
     recommendation,
     removeItem,
@@ -68,7 +75,7 @@ export function CartProvider({ children }) {
     syncCart,
     total,
     updateItem,
-  }), [cart.sessionId, items, recommendation, removeItem, syncCart, total, updateItem]);
+  }), [addItem, cart.sessionId, items, recommendation, removeItem, syncCart, total, updateItem]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

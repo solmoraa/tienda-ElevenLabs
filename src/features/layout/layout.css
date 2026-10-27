@@ -1,0 +1,7 @@
+.site-header { position: relative; z-index: 2; display: flex; align-items: center; gap: 42px; min-height: 82px; padding: 0 32px; border-bottom: 1px solid #dfe5dc; background: #fbfbf8; box-shadow: 0 6px 18px rgba(21, 35, 31, 0.04); }
+.site-header nav { display: flex; gap: 25px; font-size: 14px; font-weight: 600; }
+.site-header nav a:hover { opacity: 0.62; }
+.header-status { margin-left: auto; color: #61716b; font-size: 12px; font-weight: 600; }
+.header-status span { display: inline-block; width: 7px; height: 7px; margin-right: 4px; border-radius: 50%; background: #91bd25; }
+.site-footer { padding: 20px 32px 37px; color: #61716b; font-size: 12px; }
+@media (max-width: 720px) { .site-header { min-height: 69px; padding: 0 20px; }.site-header nav, .header-status { display: none; }.site-footer { padding: 18px 23px 28px; } }

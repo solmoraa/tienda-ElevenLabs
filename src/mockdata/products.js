@@ -1,0 +1,12 @@
+const imageBase = "/products/Imagen%20de%20ChatGPT%2016%20oct%202026, ";
+const image = (fileName) => `${imageBase}${fileName}.png`;
+
+export const featuredProducts = [
+  { id: "run-aero-celeste", name: "Aero Flow", category: "Deportivas", price: "ARS 112.900", priceValue: 112900, imageUrl: image("11_40_03-1"), videoUrl: "/videos/running-celeste.mp4", colors: ["Celeste", "Verde menta", "Violeta lavanda", "Rosa y gris"], variants: ["Talles 35 al 45"], description: "Malla respirable y amortiguación liviana para entrenamientos urbanos.", stock: 50 },
+  { id: "futbol-strike-verde", name: "Strike Pro", category: "Deportivas", price: "ARS 128.500", priceValue: 128500, imageUrl: image("11_40_05-3"), videoUrl: "/videos/botin-strike-negro.mp4", colors: ["Negro y verde lima", "Negro y azul", "Negro y rojo"], variants: ["Talles 39 al 45"], description: "Botín con tapones y empeine texturado para cambios de dirección.", stock: 50 },
+  { id: "handball-court-azul", name: "Court Drive", category: "Deportivas", price: "ARS 106.900", priceValue: 106900, imageUrl: image("11_40_07-5"), colors: ["Azul eléctrico y naranja"], variants: ["Talles 36 al 44"], description: "Suela indoor y refuerzos laterales para pivotes y frenadas.", stock: 30 },
+  { id: "formal-oxford-negro", name: "Oxford Clásico", category: "Elegantes", price: "ARS 119.900", priceValue: 119900, imageUrl: "/products/zapato_oxford_negro.png", colors: ["Negro", "Marrón"], variants: ["Talles 39 al 45"], description: "Silueta formal sobria, ideal para oficina, eventos y trajes.", stock: 20 },
+  { id: "stiletto-nude-elegance", name: "Stiletto Elegance", category: "Elegantes", price: "ARS 139.900", priceValue: 139900, imageUrl: "/products/stiletto_negro.png", colors: ["Negro", "Rojo"], variants: ["Talles 35 al 40"], description: "Punta fina y taco alto para eventos y looks elegantes.", stock: 12 },
+  { id: "run-pace-coral", name: "Pace Max Coral", category: "Deportivas", price: "ARS 124.900", priceValue: 124900, imageUrl: image("11_41_51-1"), colors: ["Negro grafito y coral"], variants: ["Talles 36 al 45"], description: "Amortiguación generosa y detalles reflectivos para rodajes diarios.", stock: 45 },
+  { id: "tenis-rally-turquesa", name: "Rally Court", category: "Deportivas", price: "ARS 121.500", priceValue: 121500, imageUrl: image("11_41_53-3"), colors: ["Blanco y turquesa"], variants: ["Talles 36 al 44"], description: "Base estable y tracción para desplazamientos laterales en cancha dura.", stock: 25 },
+];

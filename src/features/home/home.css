@@ -1,0 +1,11 @@
+.assistant-launcher { position: relative; isolation: isolate; display: flex; min-height: 250px; align-items: center; justify-content: center; margin: 24px 20px 34px; overflow: hidden; padding: 24px; border-radius: 22px; background: linear-gradient(135deg, #15231f 0%, #29443b 58%, #38534a 100%); box-shadow: 0 18px 42px rgba(21, 35, 31, 0.12); }
+.assistant-launcher::before, .assistant-launcher::after { position: absolute; z-index: -1; border-radius: 50%; content: ""; }
+.assistant-launcher::before { top: -145px; right: 8%; width: 310px; height: 310px; border: 1px solid rgba(201, 239, 93, 0.24); box-shadow: 0 0 0 50px rgba(201, 239, 93, 0.04), 0 0 0 100px rgba(201, 239, 93, 0.025); }
+.assistant-launcher::after { bottom: -105px; left: 10%; width: 220px; height: 220px; background: rgba(201, 239, 93, 0.08); filter: blur(2px); }
+.shopping-experience { display: grid; grid-template-columns: minmax(0, 1fr); gap: 40px; align-items: start; margin: 0 20px 34px; padding: 72px 8% 86px; border: 1px solid #e0e5dd; border-radius: 22px; background: #fbfbf8; }
+.how-it-works { margin: 0 20px 45px; padding: 76px 9%; border-radius: 22px; color: #fff; background: #38534a; }
+.how-it-works .eyebrow { color: #b5cf91; }.how-it-works h2 { max-width: 580px; }
+.how-it-works ol { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin: 58px 0 0; padding: 0; list-style: none; }
+.how-it-works li { padding-top: 15px; border-top: 1px solid #789087; font-size: 15px; }
+.how-it-works li span { display: block; margin-bottom: 25px; color: #c9ef5d; font: 700 14px "Syne", sans-serif; }
+@media (max-width: 720px) { .assistant-launcher { min-height: 210px; margin: 16px 12px 24px; padding: 20px; border-radius: 18px; }.assistant-launcher::before { right: -100px; }.shopping-experience { gap: 30px; margin: 0 12px 24px; padding: 56px 20px 64px; border-radius: 18px; }.how-it-works { margin: 0 12px 30px; padding: 56px 28px; }.how-it-works ol { grid-template-columns: 1fr; gap: 26px; margin-top: 43px; }.how-it-works li span { display: inline-block; margin: 0 12px 0 0; } }

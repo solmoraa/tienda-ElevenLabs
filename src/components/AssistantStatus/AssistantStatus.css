@@ -1,0 +1,45 @@
+.assistant-voice-status {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  color: #4f5853;
+  font-size: 16px;
+}
+
+.voice-orb {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 72% 72%, #c9ef5d 0 18%, transparent 46%), radial-gradient(circle at 28% 24%, #8aa07f, #38534a 48%, #15231f 78%, #0d1714);
+  box-shadow: 0 9px 24px rgba(21, 35, 31, 0.2);
+}
+
+.voice-orb--speaking {
+  animation: voice-breathe 1.45s ease-in-out infinite;
+}
+
+.voice-orb--hero {
+  width: 112px;
+  height: 112px;
+}
+
+@keyframes voice-breathe {
+  50% {
+    transform: scale(1.09);
+    filter: saturate(1.14);
+    box-shadow: 0 16px 42px rgba(82, 111, 67, 0.3);
+  }
+}
+
+@media (max-width: 820px) {
+  .assistant-voice-status {
+    font-size: 14px;
+  }
+
+  .voice-orb {
+    width: 34px;
+    height: 34px;
+  }
+}

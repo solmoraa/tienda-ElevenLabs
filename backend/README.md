@@ -62,7 +62,7 @@ Abrí `http://127.0.0.1:8000/docs` para probar los endpoints desde Swagger UI.
 
 ## Servidor MCP (etapa 6)
 
-El servidor MCP expone la API como herramientas para un agente: `buscar_productos`, `obtener_detalle_producto`, `consultar_stock`, `agregar_al_carrito`, `obtener_carrito` y `preparar_checkout`. No guarda datos ni calcula precios: delega esas responsabilidades en FastAPI.
+El servidor MCP expone la API como herramientas para un agente: `buscar_productos`, `obtener_detalle_producto`, `consultar_stock`, `agregar_al_carrito`, `eliminar_del_carrito`, `actualizar_variante_carrito`, `obtener_carrito` y `preparar_checkout`. No guarda datos ni calcula precios: delega esas responsabilidades en FastAPI.
 
 En una primera terminal iniciá FastAPI:
 

@@ -61,6 +61,13 @@ class AddCartItemRequest(BaseModel):
     size: str = Field(min_length=1)
 
 
+class UpdateCartItemRequest(BaseModel):
+    current_color: str = Field(min_length=1)
+    current_size: str = Field(min_length=1)
+    color: str | None = Field(default=None, min_length=1)
+    size: str | None = Field(default=None, min_length=1)
+
+
 class CartItem(BaseModel):
     product_id: ProductId
     name: str

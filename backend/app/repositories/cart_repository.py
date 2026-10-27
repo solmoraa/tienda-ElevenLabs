@@ -28,13 +28,10 @@ class CartRepository:
             self._last_added[session_id] = key
             return True
 
-    def remove(self, session_id: str, product_id: str, quantity: int) -> bool:
+    def remove(self, session_id: str, key: CartKey, quantity: int) -> bool:
         with self._lock:
             cart = self._carts.get(session_id)
-            if not cart:
-                return False
-            key = next((cart_key for cart_key in cart if cart_key[0] == product_id), None)
-            if key is None:
+            if not cart or key not in cart:
                 return False
             remaining = cart[key] - quantity
             if remaining > 0:
@@ -44,6 +41,28 @@ class CartRepository:
             if self._last_added.get(session_id) == key:
                 self._last_added.pop(session_id, None)
             return True
+
+    def replace_variant(self, session_id: str, source: CartKey, target: CartKey, stock: int) -> str:
+        with self._lock:
+            cart = self._carts.get(session_id)
+            if not cart or source not in cart:
+                return "not_found"
+
+            quantity = cart[source]
+            if source == target:
+                return "updated"
+
+            product_quantity_without_source = sum(
+                value for key, value in cart.items() if key[0] == source[0] and key != source
+            )
+            if product_quantity_without_source + quantity > stock:
+                return "insufficient_stock"
+
+            del cart[source]
+            cart[target] = cart.get(target, 0) + quantity
+            if self._last_added.get(session_id) == source:
+                self._last_added[session_id] = target
+            return "updated"
 
     def reset(self) -> None:
         with self._lock:

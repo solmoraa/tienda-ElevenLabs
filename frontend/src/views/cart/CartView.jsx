@@ -1,7 +1,7 @@
 import { formatPrice } from "../../utils/currency";
 import "./cart.css";
 
-export default function CartView({ items, recommendation, total, onCheckout, onContinueShopping, onViewRecommendation }) {
+export default function CartView({ items, recommendation, total, onCheckout, onContinueShopping, onRemoveItem, onViewRecommendation }) {
   return (
     <section className="assistant-view" aria-live="polite">
       <p className="assistant-view-kicker">TU CARRITO</p>
@@ -20,7 +20,10 @@ export default function CartView({ items, recommendation, total, onCheckout, onC
               <li key={`${product.id}:${product.selectedColor}:${product.selectedSize}`}>
                 <img src={product.imageUrl} alt="" />
                 <span><strong>{product.name}</strong><small>Color {product.selectedColor} · Talle {product.selectedSize} · Cantidad {quantity}</small></span>
-                <strong>{formatPrice(product.priceValue * quantity)}</strong>
+                <div className="cart-line-actions">
+                  <strong>{formatPrice(product.priceValue * quantity)}</strong>
+                  <button type="button" onClick={() => onRemoveItem({ product, quantity })}>Eliminar</button>
+                </div>
               </li>
             ))}
           </ul>

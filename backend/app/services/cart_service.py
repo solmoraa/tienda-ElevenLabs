@@ -1,6 +1,6 @@
 import unicodedata
 
-from ..models import AddCartItemRequest, Cart, CartItem
+from ..models import AddCartItemRequest, Cart, CartItem, UpdateCartItemRequest
 from ..repositories.cart_repository import CartRepository, cart_repository
 from ..repositories.product_repository import ProductRepository, product_repository
 
@@ -74,10 +74,57 @@ class CartService:
             raise ValueError("Stock insuficiente.")
         return self.get_cart(session_id)
 
-    def remove_item(self, session_id: str, product_id: str, quantity: int) -> Cart:
-        if not self._cart_repository.remove(session_id, product_id, quantity):
+    def remove_item(
+        self,
+        session_id: str,
+        product_id: str,
+        quantity: int,
+        color: str | None = None,
+        size: str | None = None,
+    ) -> Cart:
+        product = self._product_repository.get_by_id(product_id)
+        if product is None:
+            raise LookupError("Producto no encontrado.")
+
+        key = self._resolve_cart_key(session_id, product, color, size)
+        if not self._cart_repository.remove(session_id, key, quantity):
             raise LookupError("El producto no está en el carrito.")
         return self.get_cart(session_id)
+
+    def update_item(self, session_id: str, product_id: str, item: UpdateCartItemRequest) -> Cart:
+        product = self._product_repository.get_by_id(product_id)
+        if product is None:
+            raise LookupError("Producto no encontrado.")
+
+        source = self._resolve_cart_key(session_id, product, item.current_color, item.current_size)
+        target = (
+            product_id,
+            self._canonical_choice(item.color, product.colors, "color") if item.color else source[1],
+            self._canonical_choice(item.size, product.sizes, "talle") if item.size else source[2],
+        )
+        result = self._cart_repository.replace_variant(session_id, source, target, product.stock)
+        if result == "not_found":
+            raise LookupError("El producto no está en el carrito.")
+        if result == "insufficient_stock":
+            raise ValueError("Stock insuficiente para cambiar esa variante.")
+        return self.get_cart(session_id)
+
+    def _resolve_cart_key(self, session_id: str, product, color: str | None, size: str | None) -> tuple[str, str, str]:
+        quantities, _ = self._cart_repository.get_state(session_id)
+        candidates = [key for key in quantities if key[0] == product.id]
+        if not candidates:
+            raise LookupError("El producto no está en el carrito.")
+        if color is not None:
+            canonical_color = self._canonical_choice(color, product.colors, "color")
+            candidates = [key for key in candidates if key[1] == canonical_color]
+        if size is not None:
+            canonical_size = self._canonical_choice(size, product.sizes, "talle")
+            candidates = [key for key in candidates if key[2] == canonical_size]
+        if not candidates:
+            raise LookupError("No encontramos esa variante en el carrito.")
+        if len(candidates) > 1:
+            raise ValueError("Indicá color y talle para identificar la variante a modificar.")
+        return candidates[0]
 
     @classmethod
     def _canonical_choice(cls, requested: str | None, choices: list[str], label: str) -> str:

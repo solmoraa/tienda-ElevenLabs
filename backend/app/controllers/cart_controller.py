@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 
-from ..models import AddCartItemRequest, Cart
+from ..models import AddCartItemRequest, Cart, UpdateCartItemRequest
 from ..services.cart_service import CartService, cart_service
 
 
@@ -19,11 +19,21 @@ class CartController:
         except ValueError as error:
             raise HTTPException(status_code=409, detail=str(error)) from error
 
-    def remove_item(self, session_id: str, product_id: str, quantity: int) -> Cart:
+    def remove_item(self, session_id: str, product_id: str, quantity: int, color: str | None, size: str | None) -> Cart:
         try:
-            return self._service.remove_item(session_id, product_id, quantity)
+            return self._service.remove_item(session_id, product_id, quantity, color, size)
         except LookupError as error:
             raise HTTPException(status_code=404, detail=str(error)) from error
+        except ValueError as error:
+            raise HTTPException(status_code=409, detail=str(error)) from error
+
+    def update_item(self, session_id: str, product_id: str, item: UpdateCartItemRequest) -> Cart:
+        try:
+            return self._service.update_item(session_id, product_id, item)
+        except LookupError as error:
+            raise HTTPException(status_code=404, detail=str(error)) from error
+        except ValueError as error:
+            raise HTTPException(status_code=409, detail=str(error)) from error
 
 
 cart_controller = CartController()

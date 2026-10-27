@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Path, Query
 
 from ..controllers.cart_controller import cart_controller
-from ..models import AddCartItemRequest, Cart
+from ..models import AddCartItemRequest, Cart, UpdateCartItemRequest
 
 
 router = APIRouter(prefix="/api/v1/carts", tags=["carts"])
@@ -24,6 +24,13 @@ def add_cart_item(session_id: SessionId, item: AddCartItemRequest) -> Cart:
 def delete_cart_item(
     session_id: SessionId,
     product_id: str,
-    quantity: int = Query(default=1, ge=1, le=10),
+    quantity: int = Query(default=1, ge=1, le=1000),
+    color: str | None = Query(default=None),
+    size: str | None = Query(default=None),
 ) -> Cart:
-    return cart_controller.remove_item(session_id, product_id, quantity)
+    return cart_controller.remove_item(session_id, product_id, quantity, color, size)
+
+
+@router.patch("/{session_id}/items/{product_id}", response_model=Cart)
+def update_cart_item(session_id: SessionId, product_id: str, item: UpdateCartItemRequest) -> Cart:
+    return cart_controller.update_item(session_id, product_id, item)

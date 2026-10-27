@@ -129,6 +129,43 @@ def agregar_al_carrito(
 
 
 @mcp.tool()
+def eliminar_del_carrito(
+    session_id: str,
+    product_id: str,
+    color: Annotated[str, Field(description="Color exacto de la variante que se debe eliminar.")],
+    talle: Annotated[str, Field(description="Talle exacto de la variante que se debe eliminar.")],
+    cantidad: int = 1,
+) -> dict[str, Any]:
+    """Elimina una cantidad de una variante exacta del carrito y devuelve el carrito actualizado."""
+    return _request(
+        "DELETE",
+        f"/api/v1/carts/{session_id}/items/{product_id}",
+        params={"color": color, "size": talle, "quantity": max(1, cantidad)},
+    )
+
+
+@mcp.tool()
+def actualizar_variante_carrito(
+    session_id: str,
+    product_id: str,
+    color_actual: Annotated[str, Field(description="Color actual de la variante que ya está en el carrito.")],
+    talle_actual: Annotated[str, Field(description="Talle actual de la variante que ya está en el carrito.")],
+    nuevo_color: Annotated[str | None, Field(description="Nuevo color solicitado. Omitilo si solo cambia el talle.")] = None,
+    nuevo_talle: Annotated[str | None, Field(description="Nuevo talle solicitado. Omitilo si solo cambia el color.")] = None,
+) -> dict[str, Any]:
+    """Cambia color y/o talle de una variante exacta conservando su cantidad y validando stock."""
+    if not nuevo_color and not nuevo_talle:
+        return {"ok": False, "error": "Indicá un nuevo color o un nuevo talle."}
+
+    payload = {"current_color": color_actual, "current_size": talle_actual}
+    if nuevo_color:
+        payload["color"] = nuevo_color
+    if nuevo_talle:
+        payload["size"] = nuevo_talle
+    return _request("PATCH", f"/api/v1/carts/{session_id}/items/{product_id}", json=payload)
+
+
+@mcp.tool()
 def obtener_carrito(session_id: str) -> dict[str, Any]:
     """Obtiene el carrito actual de una sesión, con artículos y total calculados en el servidor."""
     return _request("GET", f"/api/v1/carts/{session_id}")

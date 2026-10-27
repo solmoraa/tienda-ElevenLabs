@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
-import { getCart } from "../../services/cartService";
+import { getCart, removeCartItem, updateCartItem } from "../../services/cartService";
 import { formatPrice } from "../../utils/currency";
 
 const CartContext = createContext(null);
@@ -12,6 +12,28 @@ export function CartProvider({ children }) {
     setCart({ items: serverCart.items, recommendation: serverCart.recommendation, sessionId: serverCart.session_id });
     return serverCart;
   }, []);
+
+  const applyServerCart = useCallback((serverCart) => {
+    setCart({ items: serverCart.items, recommendation: serverCart.recommendation, sessionId: serverCart.session_id });
+    return serverCart;
+  }, []);
+
+  const removeItem = useCallback(async ({ productId, color, size, quantity }) => {
+    if (!cart.sessionId) throw new Error("No hay un carrito activo para modificar.");
+    const serverCart = await removeCartItem(cart.sessionId, productId, { color, size, quantity });
+    return applyServerCart(serverCart);
+  }, [applyServerCart, cart.sessionId]);
+
+  const updateItem = useCallback(async ({ productId, currentColor, currentSize, color, size }) => {
+    if (!cart.sessionId) throw new Error("No hay un carrito activo para modificar.");
+    const serverCart = await updateCartItem(cart.sessionId, productId, {
+      current_color: currentColor,
+      current_size: currentSize,
+      ...(color ? { color } : {}),
+      ...(size ? { size } : {}),
+    });
+    return applyServerCart(serverCart);
+  }, [applyServerCart, cart.sessionId]);
 
   const items = useMemo(() => cart.items.map((item) => ({
     quantity: item.quantity,
@@ -41,10 +63,12 @@ export function CartProvider({ children }) {
   const value = useMemo(() => ({
     items,
     recommendation,
+    removeItem,
     sessionId: cart.sessionId,
     syncCart,
     total,
-  }), [cart.sessionId, items, recommendation, syncCart, total]);
+    updateItem,
+  }), [cart.sessionId, items, recommendation, removeItem, syncCart, total, updateItem]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

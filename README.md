@@ -122,7 +122,10 @@ El agente de ventas debe tener asociado el servidor MCP de ngrok y las herramien
 - `obtener_detalle_producto`
 - `consultar_stock`
 - `agregar_al_carrito`
+- `eliminar_del_carrito`
+- `actualizar_variante_carrito`
 - `obtener_carrito`
+- `preparar_checkout`
 
 Si el servidor tiene la política **Require approval per tool**, aprobá esas herramientas en ElevenLabs antes de probar. Si no están aprobadas, el agente no podrá ejecutarlas.
 
@@ -135,6 +138,7 @@ Si el servidor tiene la política **Require approval per tool**, aprobá esas he
 | ElevenLabs no conecta al MCP | Confirmá que el backend, el MCP y ngrok estén abiertos; verificá la URL pública terminada en `/mcp`. |
 | Error de host de MCP | El valor de `MCP_ALLOWED_HOST` debe ser exactamente el host de ngrok, sin `https://` ni `/mcp`. |
 | El agente no puede agregar al carrito | Aprobá las herramientas MCP en ElevenLabs y verificá que `consultar_stock` y `agregar_al_carrito` estén disponibles. |
+| El agente no puede quitar un producto o cambiar talle/color | Reiniciá el MCP, actualizá la integración MCP en ElevenLabs y aprobá `eliminar_del_carrito` y `actualizar_variante_carrito`. |
 | El carrito aparece vacío después de reiniciar | Es normal: la persistencia actual es en memoria. |
 
 ## Detener los servicios

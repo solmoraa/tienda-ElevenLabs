@@ -253,6 +253,60 @@ def test_removes_cart_item() -> None:
     assert response.json()["items"][0]["quantity"] == 1
 
 
+def test_removes_only_the_selected_cart_variant() -> None:
+    client.post(
+        "/api/v1/carts/session-variants/items",
+        json={"product_id": "stiletto-nude-elegance", "color": "Negro", "size": "36"},
+    )
+    client.post(
+        "/api/v1/carts/session-variants/items",
+        json={"product_id": "stiletto-nude-elegance", "color": "Rojo", "size": "37"},
+    )
+    response = client.delete(
+        "/api/v1/carts/session-variants/items/stiletto-nude-elegance",
+        params={"color": "Rojo", "size": "37", "quantity": 1},
+    )
+    assert response.status_code == 200
+    items = response.json()["items"]
+    assert len(items) == 1
+    assert items[0]["selected_color"] == "Negro"
+    assert items[0]["selected_size"] == "36"
+
+
+def test_changes_color_and_size_of_an_existing_cart_item() -> None:
+    client.post(
+        "/api/v1/carts/session-change/items",
+        json={"product_id": "run-aero-celeste", "quantity": 2, "color": "Celeste", "size": "38"},
+    )
+    response = client.patch(
+        "/api/v1/carts/session-change/items/run-aero-celeste",
+        json={
+            "current_color": "Celeste",
+            "current_size": "38",
+            "color": "Verde menta",
+            "size": "40",
+        },
+    )
+    assert response.status_code == 200
+    item = response.json()["items"][0]
+    assert item["quantity"] == 2
+    assert item["selected_color"] == "Verde menta"
+    assert item["selected_size"] == "40"
+    assert "zapatilla_running_verde_menta.png" in item["image_url"]
+
+
+def test_change_rejects_a_variant_that_is_not_in_the_cart() -> None:
+    client.post(
+        "/api/v1/carts/session-change-error/items",
+        json={"product_id": "run-aero-celeste", "color": "Celeste", "size": "38"},
+    )
+    response = client.patch(
+        "/api/v1/carts/session-change-error/items/run-aero-celeste",
+        json={"current_color": "Verde menta", "current_size": "38", "size": "40"},
+    )
+    assert response.status_code == 404
+
+
 def test_checkout_is_created_from_the_server_cart() -> None:
     client.post(
         "/api/v1/carts/session-demo/items",

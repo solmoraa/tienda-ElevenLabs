@@ -2,6 +2,10 @@
 
 Demo de una tienda React con un agente de ventas de ElevenLabs y un servidor MCP local. El agente puede buscar productos, consultar stock y administrar un carrito en memoria.
 
+## Versión
+
+`1.1.0` — incorpora la eliminación de productos del carrito y el cambio de color o talle de una variante ya agregada.
+
 ## Estructura
 
 ```text

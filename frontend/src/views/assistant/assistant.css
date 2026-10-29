@@ -27,6 +27,7 @@ body:has(.assistant-panel--overlay) { overflow: hidden; }
 .assistant-panel--overlay .assistant-view-kicker { margin-bottom: 12px; color: #777f7a; letter-spacing: 1.4px; }.assistant-panel--overlay .assistant-view > h3 { color: #141915; font-size: clamp(28px, 3vw, 44px); }.assistant-panel--overlay .assistant-view-description { max-width: 620px; color: #69716c; font-size: 15px; }
 .assistant-panel--overlay .assistant-results-list { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(16px, 2vw, 28px); margin-top: 30px; }
 .assistant-panel--overlay .assistant-primary-action { min-height: 48px; border: 0; border-radius: 999px; color: #15231f; background: #c9ef5d; }.assistant-panel--overlay .assistant-primary-action:hover:not(:disabled) { background: #b9e246; }.assistant-panel--overlay .assistant-primary-action:disabled { color: #778078; background: #e7ebe5; cursor: not-allowed; }.assistant-panel--overlay .assistant-text-button { color: #5e6861; text-decoration: none; }
+.assistant-panel--overlay .assistant-secondary-action { min-height: 44px; border-radius: 999px; }
 .assistant-panel--overlay .assistant-loading { align-self: center; min-height: 60vh; }
 .assistant-panel--overlay > .assistant-view, .assistant-panel--overlay > .assistant-welcome { view-transition-name: assistant-content; }
 .assistant-panel--overlay .assistant-view, .assistant-panel--overlay .assistant-welcome { animation: assistant-enter 420ms cubic-bezier(.22, .72, .22, 1) both; }

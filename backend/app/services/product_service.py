@@ -13,7 +13,7 @@ class ProductService:
         self,
         category: str | None,
         size: int | None,
-        max_price: int | None,
+        max_price: float | None,
         limit: int,
     ) -> list[ProductSummary]:
         products = self._product_repository.search(category, size, max_price, 50)

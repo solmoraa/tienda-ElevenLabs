@@ -11,7 +11,7 @@ router = APIRouter(prefix="/api/v1/products", tags=["products"])
 def list_products(
     category: str | None = Query(default=None, min_length=1, max_length=100),
     size: int | None = Query(default=None, ge=20, le=60),
-    max_price: int | None = Query(default=None, ge=0),
+    max_price: float | None = Query(default=None, ge=0),
     limit: int = Query(default=50, ge=1, le=50),
 ) -> ProductSearchResponse:
     return product_controller.list_products(category, size, max_price, limit)

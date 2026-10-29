@@ -3,6 +3,8 @@ from urllib.parse import quote
 
 from ..models import Product, ProductColor, ProductSummary
 
+ARS_PER_EUR = 1750
+
 
 def asset(file_name: str) -> str:
     """Devuelve una URL estable para un archivo de public/products."""
@@ -22,7 +24,7 @@ def product(
     color_options = [ProductColor(name=color, image_url=asset(file_name)) for color, file_name in color_images]
     return Product(
         id=product_id, name=name, category=category, subcategories=subcategories,
-        product_type=product_type, price=price, stock=stock,
+        product_type=product_type, price=round(price / ARS_PER_EUR, 2), currency="EUR", stock=stock,
         image_url=color_options[0].image_url,
         images=[option.image_url for option in color_options],
         colors=[option.name for option in color_options], color_options=color_options,
@@ -304,7 +306,7 @@ class ProductRepository:
         ]
         self._products = {item.id: item for item in products}
 
-    def search(self, category: str | None, size: int | None, max_price: int | None, limit: int) -> list[Product]:
+    def search(self, category: str | None, size: int | None, max_price: float | None, limit: int) -> list[Product]:
         products = list(self._products.values())
         if category:
             query = self._normalize(category)
@@ -373,8 +375,14 @@ class ProductRepository:
             return bool(tags & {"casual", "urbano", "dia a dia"})
         if any(term in query for term in ("deporte", "deportivo", "deportiva", "entrenar", "entrenamiento")):
             return category == "deportivas"
-        if any(term in query for term in ("zapatilla", "calzado", "todos", "todas", "todo")):
-            return item.product_type == "calzado"
+        generic_terms = {"zapatilla", "zapatillas", "calzado", "todos", "todas", "todo"}
+        query_terms = set(query.split())
+        if query_terms & generic_terms:
+            specific_terms = query_terms - generic_terms - {"de", "para", "unos", "unas", "un", "una", "quiero", "busco", "mostrar", "mostrame"}
+            if not specific_terms:
+                return item.product_type == "calzado"
+            haystack = " ".join((category, name, *tags))
+            return all(term in haystack for term in specific_terms)
         haystack = " ".join((category, name, *tags))
         return query in haystack or any(token in haystack for token in query.split())
 

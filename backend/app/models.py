@@ -11,8 +11,8 @@ class Product(BaseModel):
     id: ProductId
     name: str
     category: str
-    price: int = Field(ge=0, description="Precio entero en pesos argentinos.")
-    currency: str = "ARS"
+    price: float = Field(ge=0, description="Precio expresado en euros.")
+    currency: str = "EUR"
     stock: int = Field(ge=0)
     image_url: str
     images: list[str] = Field(min_length=1)
@@ -35,8 +35,8 @@ class ProductSummary(BaseModel):
     id: ProductId
     name: str
     category: str
-    price: int = Field(ge=0)
-    currency: str = "ARS"
+    price: float = Field(ge=0)
+    currency: str = "EUR"
     stock: int = Field(ge=0)
     image_url: str
     subcategories: list[str] = Field(default_factory=list)
@@ -72,8 +72,8 @@ class CartItem(BaseModel):
     product_id: ProductId
     name: str
     quantity: int = Field(ge=1)
-    unit_price: int = Field(ge=0)
-    line_total: int = Field(ge=0)
+    unit_price: float = Field(ge=0)
+    line_total: float = Field(ge=0)
     currency: str
     image_url: str
     selected_color: str
@@ -83,8 +83,8 @@ class CartItem(BaseModel):
 class Cart(BaseModel):
     session_id: SessionId
     items: list[CartItem]
-    total: int = Field(ge=0)
-    currency: str = "ARS"
+    total: float = Field(ge=0)
+    currency: str = "EUR"
     recommendation: ProductSummary | None = None
 
 
@@ -92,7 +92,7 @@ class CheckoutSession(BaseModel):
     checkout_id: str
     session_id: SessionId
     items: list[CartItem]
-    total: int = Field(ge=0)
-    currency: str = "ARS"
+    total: float = Field(ge=0)
+    currency: str = "EUR"
     checkout_url: str
     is_demo: bool = True

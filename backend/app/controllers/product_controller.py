@@ -12,7 +12,7 @@ class ProductController:
         self,
         category: str | None,
         size: int | None,
-        max_price: int | None,
+        max_price: float | None,
         limit: int,
     ) -> ProductSearchResponse:
         products = self._service.search(category, size, max_price, limit)

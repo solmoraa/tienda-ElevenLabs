@@ -49,6 +49,13 @@ function PanelView({ onCheckoutReady }) {
     sendUserMessage(`Quiero agregar una unidad al carrito: product_id=${product.id}, color=${selection.color}, talle=${selection.size}.`);
   };
 
+  const handleBuyNow = (product, selection) => {
+    sendContextualUpdate(
+      `El cliente pulsó "Comprar ahora" para ${product.name} (product_id=${product.id}), color ${selection.color}, talle ${selection.size}. Es una compra directa: agregá exactamente una unidad mediante MCP y, si resulta exitosa, prepará y mostrá inmediatamente el checkout. No muestres el carrito como paso intermedio.`,
+    );
+    sendUserMessage(`Quiero comprar ahora una unidad: product_id=${product.id}, color=${selection.color}, talle=${selection.size}.`);
+  };
+
   const handleVariantChange = async (selection) => {
     await selectProductVariant(selectedProduct.id, selection);
     const detail = [selection.color && `color ${selection.color}`, selection.size && `talle ${selection.size}`].filter(Boolean).join(" y ");
@@ -109,7 +116,7 @@ function PanelView({ onCheckoutReady }) {
 
   if (view === "loading") return <section className="assistant-view assistant-loading" aria-live="polite"><h3>Buscando opciones…</h3><p>Consultando productos reales.</p></section>;
   if (view === "results") return <ProductResults products={products} onSelect={handleProductSelection} onShowWelcome={showWelcome} />;
-  if (view === "details") return <ProductDetails product={selectedProduct} selectedColor={selectedColor} selectedSize={selectedSize} onVariantChange={handleVariantChange} onAddToCart={handleAddToCart} onBack={() => showProducts(products.map((product) => product.id))} />;
+  if (view === "details") return <ProductDetails product={selectedProduct} selectedColor={selectedColor} selectedSize={selectedSize} onVariantChange={handleVariantChange} onAddToCart={handleAddToCart} onBuyNow={handleBuyNow} onBack={() => showProducts(products.map((product) => product.id))} />;
   if (view === "cart") return <CartView items={cartItems} recommendation={recommendation} total={cartTotal} onDecreaseItem={handleDecreaseItem} onIncreaseItem={handleIncreaseItem} onRemoveItem={handleRemoveItem} onViewRecommendation={() => showProductDetail(recommendation.id, { color: recommendation.suggested_color })} onCheckout={() => sendUserMessage("Quiero pagar mi carrito y confirmar el checkout.")} onContinueShopping={showWelcome} />;
   if (view === "checkout") return <section className="assistant-view assistant-loading" aria-live="polite"><span className="voice-orb voice-orb--speaking" /><h3>Abriendo el pago…</h3></section>;
   if (view === "error") return <section className="assistant-view assistant-state-error" aria-live="polite"><p className="assistant-view-kicker">NO PUDIMOS CONTINUAR</p><h3>Algo salió mal.</h3><p className="assistant-view-description">{error}</p></section>;

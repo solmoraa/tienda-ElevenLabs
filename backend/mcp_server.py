@@ -56,10 +56,10 @@ def _request(method: str, path: str, **kwargs: Any) -> dict[str, Any]:
 def buscar_productos(
     categoria: str | None = None,
     talle: int | None = None,
-    precio_maximo: int | None = None,
+    precio_maximo: float | None = None,
     limite: int = 50,
 ) -> dict[str, Any]:
-    """Busca productos por categoría, talle y/o precio máximo expresado en pesos argentinos."""
+    """Busca productos por categoría, talle y/o precio máximo expresado en euros."""
     params = {"limit": min(max(limite, 1), 50)}
     if categoria:
         params["category"] = categoria

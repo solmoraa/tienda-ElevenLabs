@@ -1,7 +1,7 @@
 import ProductMedia from "../../components/ProductMedia/ProductMedia";
 import "./products.css";
 
-export default function ProductDetails({ product, selectedColor, selectedSize, onAddToCart, onBack, onVariantChange }) {
+export default function ProductDetails({ product, selectedColor, selectedSize, onAddToCart, onBuyNow, onBack, onVariantChange }) {
   if (!product) return null;
 
   const stockLabel = product.stock === 1
@@ -67,6 +67,12 @@ export default function ProductDetails({ product, selectedColor, selectedSize, o
             disabled={!activeColor?.name || !selectedSize}
             onClick={() => onAddToCart(product, { color: activeColor.name, size: selectedSize })}
           >{selectedSize ? "Agregar al carrito" : "Elegí un talle"}</button>
+          <button
+            className="assistant-secondary-action"
+            type="button"
+            disabled={!activeColor?.name || !selectedSize}
+            onClick={() => onBuyNow(product, { color: activeColor.name, size: selectedSize })}
+          >Comprar ahora</button>
           <button className="assistant-text-button" type="button" onClick={onBack}>Volver a resultados</button>
         </div>
       </div>

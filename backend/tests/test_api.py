@@ -20,9 +20,15 @@ def ids_for(category: str, **params: object) -> set[str]:
 
 
 def test_searches_by_maximum_price() -> None:
-    response = client.get("/api/v1/products", params={"category": "handball", "max_price": 110000})
+    response = client.get("/api/v1/products", params={"category": "handball", "max_price": 62})
     assert response.status_code == 200
-    assert ids_for("handball", max_price=110000) == {"handball-court-azul"}
+    assert ids_for("handball", max_price=62) == {"handball-court-azul"}
+
+
+def test_unknown_product_request_does_not_return_the_whole_catalog() -> None:
+    response = client.get("/api/v1/products", params={"category": "zapatillas de moitai"})
+    assert response.status_code == 200
+    assert response.json()["products"] == []
 
 
 def test_daily_use_aliases_return_all_casual_models() -> None:
@@ -112,8 +118,8 @@ def test_cart_calculates_price_and_keeps_selected_variant() -> None:
     )
     assert response.status_code == 201
     body = response.json()
-    assert body["total"] == 225800
-    assert body["currency"] == "ARS"
+    assert body["total"] == 129.02
+    assert body["currency"] == "EUR"
     assert body["items"][0]["selected_color"] == "Verde menta"
     assert body["items"][0]["selected_size"] == "38"
     assert "zapatilla_running_verde_menta.png" in body["items"][0]["image_url"]
@@ -315,8 +321,8 @@ def test_checkout_is_created_from_the_server_cart() -> None:
     response = client.post("/api/v1/carts/session-demo/checkout")
     assert response.status_code == 201
     body = response.json()
-    assert body["total"] == 112900
-    assert body["currency"] == "ARS"
+    assert body["total"] == 64.51
+    assert body["currency"] == "EUR"
     assert body["items"][0]["selected_color"] == "Celeste"
     assert body["is_demo"] is True
     assert body["checkout_url"] == f"/checkout/{body['checkout_id']}"

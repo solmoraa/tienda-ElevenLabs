@@ -19,6 +19,9 @@ h2 { font-size: clamp(30px, 3.5vw, 47px); line-height: 1.04; letter-spacing: -2.
 .assistant-view-description { margin: 9px 0 17px; color: #61716b; font-size: 13px; line-height: 1.5; }
 .assistant-primary-action { width: 100%; margin-top: 16px; padding: 11px 13px; border: 1px solid #9fbe49; border-radius: 9px; color: #18241f; background: #c9ef5d; font-size: 13px; font-weight: 800; cursor: pointer; }
 .assistant-primary-action:hover { background: #b9e246; }
+.assistant-secondary-action { width: 100%; margin-top: 10px; padding: 11px 13px; border: 1px solid #8ba6a0; border-radius: 9px; color: #24433a; background: transparent; font-size: 13px; font-weight: 800; cursor: pointer; }
+.assistant-secondary-action:hover:not(:disabled) { background: #edf3ef; }
+.assistant-secondary-action:disabled { color: #8e9892; border-color: #d7dfd9; cursor: not-allowed; }
 .assistant-text-button { width: 100%; margin-top: 9px; padding: 9px; border: 0; color: #466c3d; background: transparent; font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
 .assistant-cart-list { display: grid; gap: 8px; margin: 18px 0; padding: 0; list-style: none; }
 .assistant-cart-list li { display: flex; justify-content: space-between; gap: 10px; padding-bottom: 8px; border-bottom: 1px solid #e3e8e1; color: #355146; font-size: 13px; }

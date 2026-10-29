@@ -363,6 +363,14 @@ class ProductRepository:
             return item.product_type == "calzado" and bool(tags & {"trail", "senderismo", "trekking", "escalada", "montana"})
         if "outdoor" in query:
             return category == "outdoor"
+        if "crossfit" in query:
+            return item.product_type == "calzado" and bool(tags & {"running", "entrenamiento"})
+        if any(term in query for term in ("basquet", "basketball")):
+            return item.product_type == "calzado" and bool(tags & {"handball", "tenis", "indoor"})
+        if any(term in query for term in ("padel", "pádel")):
+            return item.product_type == "calzado" and "tenis" in tags
+        if any(term in query for term in ("beisbol", "béisbol", "baseball")):
+            return item.product_type == "calzado" and "futbol" in tags
         if query in {"botin", "botines"} or any(term in query for term in ("botin de futbol", "botines de futbol", "futbol", "tapones")):
             return item.product_type == "calzado" and "futbol" in tags
         if any(term in query for term in ("handball", "balonmano")):

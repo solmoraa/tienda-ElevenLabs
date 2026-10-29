@@ -59,6 +59,22 @@ def test_sports_search_returns_every_sports_model() -> None:
     assert {"run-aero-celeste", "futbol-strike-verde", "handball-court-azul", "tenis-rally-turquesa", "trail-forge"} <= {product["id"] for product in products}
 
 
+def test_crossfit_search_returns_training_models_only() -> None:
+    assert ids_for("crossfit") == {
+        "run-aero-celeste",
+        "run-pace-coral",
+        "road-cage",
+        "cloud-run",
+    }
+
+
+def test_related_sports_return_only_their_nearest_footwear_family() -> None:
+    basketball = ids_for("básquet")
+    assert basketball == {"handball-court-azul", "tenis-rally-turquesa", "court-apex", "handball-pulse", "court-grip"}
+    assert ids_for("pádel") == {"tenis-rally-turquesa", "court-apex", "court-grip"}
+    assert ids_for("béisbol") == {"futbol-strike-verde", "futbol-pulse-fg"}
+
+
 def test_trail_forge_is_sports_footwear_for_climbing_and_mountain_searches() -> None:
     product = client.get("/api/v1/products/trail-forge").json()
     assert product["category"] == "Deportivas"

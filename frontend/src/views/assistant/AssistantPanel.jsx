@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useConversationControls, useConversationMode } from "@elevenlabs/react";
 import AssistantStatus from "../../components/AssistantStatus/AssistantStatus";
+import ConversationTranscript from "../../components/ConversationTranscript/ConversationTranscript";
 import { useAssistantExperience } from "../../controllers/context/AssistantExperienceContext";
 import { useCart } from "../../controllers/context/CartContext";
 import CartView from "../cart/CartView";
@@ -20,7 +21,7 @@ const overlayStyle = {
   background: "#fbfbfa",
 };
 
-export default function AssistantPanel({ errorMessage, onCheckoutReady, onClose, variant }) {
+export default function AssistantPanel({ conversationMessages, errorMessage, onCheckoutReady, onClose, variant }) {
   // El portal lleva el overlay directamente al body. Safari iOS deja de
   // depender de cualquier contenedor o contexto de apilamiento de la tienda.
   return createPortal(
@@ -30,10 +31,20 @@ export default function AssistantPanel({ errorMessage, onCheckoutReady, onClose,
       aria-label="Asistente de compra"
     >
       <header className="assistant-panel-header">
-        <AssistantStatus errorMessage={errorMessage} />
+        <div className="assistant-panel-status">
+          <AssistantStatus errorMessage={errorMessage} />
+        </div>
+        <div className="assistant-panel-mobile-transcript">
+          <ConversationTranscript messages={conversationMessages} compact />
+        </div>
         <button className="close-panel" type="button" onClick={onClose} aria-label="Finalizar conversación y volver a la tienda">Terminar llamada</button>
       </header>
-      <PanelView onCheckoutReady={onCheckoutReady} />
+      <div className="assistant-panel-content">
+        <PanelView onCheckoutReady={onCheckoutReady} />
+        <div className="assistant-panel-desktop-transcript">
+          <ConversationTranscript messages={conversationMessages} />
+        </div>
+      </div>
     </aside>
     , document.body,
   );

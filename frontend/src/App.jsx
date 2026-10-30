@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { ConversationProvider, useConversationControls, useConversationStatus } from "@elevenlabs/react";
 import AssistantClientTools from "./controllers/assistant/AssistantClientTools";
 import { AssistantExperienceProvider, useAssistantExperience } from "./controllers/context/AssistantExperienceContext";
@@ -7,7 +7,7 @@ import AssistantPanel from "./views/assistant/AssistantPanel";
 import CheckoutView from "./views/checkout/CheckoutView";
 import HomePage from "./views/home/HomePage";
 
-function Storefront({ assistantOpen, conversationError, onAssistantVisibilityChange, onConversationError }) {
+function Storefront({ assistantOpen, conversationError, conversationMessages, onAssistantVisibilityChange, onConversationError }) {
   const { endSession } = useConversationControls();
   const { status } = useConversationStatus();
   const experience = useAssistantExperience();
@@ -48,6 +48,7 @@ function Storefront({ assistantOpen, conversationError, onAssistantVisibilityCha
 
       {shouldShowAssistant && (
         <AssistantPanel
+          conversationMessages={conversationMessages}
           errorMessage={conversationError}
           onCheckoutReady={handleCheckoutReady}
           onClose={handleExitAssistant}
@@ -61,6 +62,35 @@ function Storefront({ assistantOpen, conversationError, onAssistantVisibilityCha
 export default function App() {
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [conversationError, setConversationError] = useState("");
+  const [conversationMessages, setConversationMessages] = useState([]);
+  const messageSequenceRef = useRef(0);
+
+  const resetConversationMessages = useCallback(() => {
+    messageSequenceRef.current = 0;
+    setConversationMessages([]);
+  }, []);
+
+  const handleMessage = useCallback((message) => {
+    const content = message?.message?.trim();
+    if (!content) return;
+
+    const role = message.source === "user" ? "user" : "assistant";
+
+    setConversationMessages((current) => {
+      const lastMessage = current.at(-1);
+      const isTranscriptUpdate = lastMessage
+        && lastMessage.role === role
+        && (content === lastMessage.content || content.startsWith(lastMessage.content) || lastMessage.content.startsWith(content));
+
+      if (isTranscriptUpdate) {
+        if (content === lastMessage.content) return current;
+        return [...current.slice(0, -1), { ...lastMessage, content }];
+      }
+
+      messageSequenceRef.current += 1;
+      return [...current, { id: `${role}-${messageSequenceRef.current}`, role, content }];
+    });
+  }, []);
 
   return (
     // El Provider habilita los hooks oficiales del SDK en todos sus componentes hijos.
@@ -71,6 +101,10 @@ export default function App() {
       onStatusChange={({ status }) => {
         setAssistantOpen(status === "connecting" || status === "connected");
       }}
+      // El SDK entrega transcripciones parciales y finales mediante onMessage.
+      // Los fragmentos del mismo turno se actualizan sin duplicarse en pantalla.
+      onMessage={handleMessage}
+      onConnect={resetConversationMessages}
       // Algunos errores ocurren durante la sesión, no necesariamente dentro del click del botón.
       onError={(error) => {
         console.error("Error de conversación:", error);
@@ -82,6 +116,7 @@ export default function App() {
           <Storefront
             assistantOpen={assistantOpen}
             conversationError={conversationError}
+            conversationMessages={conversationMessages}
             onAssistantVisibilityChange={setAssistantOpen}
             onConversationError={setConversationError}
           />

@@ -17,7 +17,6 @@ const overlayStyle = {
   width: "100vw",
   minHeight: "100vh",
   minHeight: "100dvh",
-  overflowY: "auto",
   background: "#fbfbfa",
 };
 

@@ -7,16 +7,21 @@ import AssistantPanel from "./views/assistant/AssistantPanel";
 import CheckoutView from "./views/checkout/CheckoutView";
 import HomePage from "./views/home/HomePage";
 
-function Storefront({ conversationError, onConversationError }) {
+function Storefront({ assistantOpen, conversationError, onAssistantVisibilityChange, onConversationError }) {
   const { endSession } = useConversationControls();
   const { status } = useConversationStatus();
   const experience = useAssistantExperience();
   const [storeCheckout, setStoreCheckout] = useState(null);
   const isConversationActive = status === "connecting" || status === "connected";
+  const shouldShowAssistant = assistantOpen || isConversationActive;
 
   const handleExitAssistant = async () => {
-    if (status === "connected" || status === "connecting") await endSession();
-    experience.showWelcome();
+    try {
+      if (status === "connected" || status === "connecting") await endSession();
+    } finally {
+      onAssistantVisibilityChange(false);
+      experience.showWelcome();
+    }
   };
 
   const handleCheckoutReady = useCallback((checkout) => {
@@ -36,9 +41,12 @@ function Storefront({ conversationError, onConversationError }) {
   return (
     <>
       <AssistantClientTools />
-      <HomePage onConversationError={onConversationError} />
+      <HomePage
+        onAssistantVisibilityChange={onAssistantVisibilityChange}
+        onConversationError={onConversationError}
+      />
 
-      {isConversationActive && (
+      {shouldShowAssistant && (
         <AssistantPanel
           errorMessage={conversationError}
           onCheckoutReady={handleCheckoutReady}
@@ -51,6 +59,7 @@ function Storefront({ conversationError, onConversationError }) {
 }
 
 export default function App() {
+  const [assistantOpen, setAssistantOpen] = useState(false);
   const [conversationError, setConversationError] = useState("");
 
   return (
@@ -66,7 +75,9 @@ export default function App() {
       <CartProvider>
         <AssistantExperienceProvider>
           <Storefront
+            assistantOpen={assistantOpen}
             conversationError={conversationError}
+            onAssistantVisibilityChange={setAssistantOpen}
             onConversationError={setConversationError}
           />
         </AssistantExperienceProvider>

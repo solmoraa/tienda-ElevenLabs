@@ -4,7 +4,7 @@ import "./assistant.css";
 
 const AGENT_ID = "agent_4301m4zxq778fc3aky579g2w12e9";
 
-export default function AgentButton({ onConversationError }) {
+export default function AgentButton({ onAssistantVisibilityChange, onConversationError }) {
   const { startSession, endSession } = useConversationControls();
   const { status } = useConversationStatus();
   const [errorMessage, setErrorMessage] = useState("");
@@ -17,13 +17,19 @@ export default function AgentButton({ onConversationError }) {
 
     try {
       if (isConnected) {
-        await endSession();
+        try {
+          await endSession();
+        } finally {
+          onAssistantVisibilityChange(false);
+        }
         return;
       }
 
       await requestMicrophonePermission();
       await startSession({ agentId: AGENT_ID, connectionType: "webrtc" });
+      onAssistantVisibilityChange(true);
     } catch (error) {
+      onAssistantVisibilityChange(false);
       console.error("Error al iniciar la conversación:", error);
       const message = getReadableError(error);
       setErrorMessage(message);

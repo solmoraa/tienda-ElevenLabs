@@ -7,7 +7,7 @@ import { getCatalogProducts } from "../../services/productsService";
 import Hero from "./Hero";
 import "./home.css";
 
-export default function HomePage({ onConversationError }) {
+export default function HomePage({ onAssistantVisibilityChange, onConversationError }) {
   const [products, setProducts] = useState([]);
   const [isCatalogLoading, setIsCatalogLoading] = useState(true);
 
@@ -35,7 +35,10 @@ export default function HomePage({ onConversationError }) {
     <>
       <Header />
       <main id="inicio">
-        <Hero onConversationError={onConversationError} />
+        <Hero
+          onAssistantVisibilityChange={onAssistantVisibilityChange}
+          onConversationError={onConversationError}
+        />
 
         <section className="shopping-experience" aria-label="Tienda y asistente">
           <Catalog products={products} isLoading={isCatalogLoading} />

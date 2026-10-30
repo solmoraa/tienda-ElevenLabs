@@ -20,6 +20,8 @@ body:has(.assistant-panel--overlay) { overflow: hidden; }
 .assistant-panel-mobile-transcript { display: none; min-width: 0; flex: 1; }
 .assistant-panel-content { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 330px); align-items: start; gap: clamp(24px, 3vw, 48px); width: min(100%, 1440px); }
 .assistant-panel-desktop-transcript { position: sticky; top: 128px; min-height: 0; padding-top: clamp(32px, 5vh, 68px); }
+.assistant-panel-desktop-transcript .conversation-transcript { height: min(440px, calc(100dvh - 168px)); }
+.assistant-panel-desktop-transcript .conversation-transcript-messages { max-height: none; }
 .assistant-panel-content > .assistant-view, .assistant-panel-content > .assistant-welcome { width: 100%; }
 .assistant-panel--overlay .close-panel { width: auto; height: auto; margin-left: auto; padding: 13px 22px; border: 0; border-radius: 999px; color: #fff; background: #101311; font-size: 13px; font-weight: 600; }
 .assistant-panel--overlay .close-panel:hover { color: #15231f; background: #c9ef5d; }

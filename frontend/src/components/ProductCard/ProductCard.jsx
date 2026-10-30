@@ -1,15 +1,10 @@
+import ProductMedia from "../ProductMedia/ProductMedia";
 import "./ProductCard.css";
 
 export default function ProductCard({ product }) {
   return (
     <article className="catalog-product">
-      <img
-        className="product-image product-photo"
-        src={product.imageUrl}
-        alt={product.name}
-        loading="lazy"
-        decoding="async"
-      />
+      <ProductMedia product={product} className="product-image" />
       <div className="product-copy">
         <p>{product.category}</p>
         <h3>{product.name}</h3>

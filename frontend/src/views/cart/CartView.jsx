@@ -11,14 +11,14 @@ export default function CartView({ items, recommendation, total, onCheckout, onC
           {recommendation && (
             <button className="cart-recommendation" type="button" onClick={onViewRecommendation}>
               <span className="cart-recommendation-badge">COMPLETÁ TU COMPRA</span>
-              <img src={recommendation.imageUrl} alt="" />
+              <img src={recommendation.imageUrl} alt="" loading="lazy" decoding="async" />
               <span><strong>{recommendation.name}</strong><small>{recommendation.suggested_color ? `${recommendation.suggested_color} · ` : ""}{recommendation.price} · Ver detalle</small></span>
             </button>
           )}
           <ul className="assistant-cart-list">
             {items.map(({ product, quantity }) => (
               <li key={`${product.id}:${product.selectedColor}:${product.selectedSize}`}>
-                <img src={product.imageUrl} alt="" />
+                <img src={product.imageUrl} alt="" loading="lazy" decoding="async" />
                 <span><strong>{product.name}</strong><small>Color {product.selectedColor} · Talle {product.selectedSize} · Cantidad {quantity}</small></span>
                 <div className="cart-line-actions">
                   <strong>{formatPrice(product.priceValue * quantity)}</strong>

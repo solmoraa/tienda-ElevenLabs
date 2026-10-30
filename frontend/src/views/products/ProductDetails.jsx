@@ -20,6 +20,7 @@ export default function ProductDetails({ product, selectedColor, selectedSize, o
             className="assistant-detail-image"
             imageUrl={activeColor?.image_url ?? product.imageUrl}
             videoUrl={isDefaultColor ? product.videoUrl : null}
+            priority
           />
           {product.colorOptions?.length > 1 && (
             <div className="detail-thumbnails" aria-label="Colores disponibles">
@@ -32,7 +33,7 @@ export default function ProductDetails({ product, selectedColor, selectedSize, o
                   aria-label={`Ver color ${option.name}`}
                   aria-pressed={option.name === activeColor?.name}
                 >
-                  <img src={option.image_url} alt="" />
+                  <img src={option.image_url} alt="" loading="lazy" decoding="async" />
                   <span>{option.name}</span>
                 </button>
               ))}

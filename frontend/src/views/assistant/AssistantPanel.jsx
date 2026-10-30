@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useConversationControls, useConversationMode } from "@elevenlabs/react";
 import AssistantStatus from "../../components/AssistantStatus/AssistantStatus";
 import { useAssistantExperience } from "../../controllers/context/AssistantExperienceContext";
@@ -8,15 +9,33 @@ import ProductDetails from "../products/ProductDetails";
 import ProductResults from "../products/ProductResults";
 import "./assistant.css";
 
+const overlayStyle = {
+  position: "fixed",
+  zIndex: 2147483647,
+  inset: 0,
+  width: "100vw",
+  minHeight: "100vh",
+  minHeight: "100dvh",
+  overflowY: "auto",
+  background: "#fbfbfa",
+};
+
 export default function AssistantPanel({ errorMessage, onCheckoutReady, onClose, variant }) {
-  return (
-    <aside className={`assistant-panel ${variant === "overlay" ? "assistant-panel--overlay" : ""}`} aria-label="Asistente de compra">
+  // El portal lleva el overlay directamente al body. Safari iOS deja de
+  // depender de cualquier contenedor o contexto de apilamiento de la tienda.
+  return createPortal(
+    <aside
+      className={`assistant-panel ${variant === "overlay" ? "assistant-panel--overlay" : ""}`}
+      style={variant === "overlay" ? overlayStyle : undefined}
+      aria-label="Asistente de compra"
+    >
       <header className="assistant-panel-header">
         <AssistantStatus errorMessage={errorMessage} />
         <button className="close-panel" type="button" onClick={onClose} aria-label="Finalizar conversación y volver a la tienda">Terminar llamada</button>
       </header>
       <PanelView onCheckoutReady={onCheckoutReady} />
     </aside>
+    , document.body,
   );
 }
 

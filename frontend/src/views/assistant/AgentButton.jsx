@@ -26,8 +26,8 @@ export default function AgentButton({ onAssistantVisibilityChange, onConversatio
       }
 
       await requestMicrophonePermission();
-      await startSession({ agentId: AGENT_ID, connectionType: "webrtc" });
       onAssistantVisibilityChange(true);
+      await startSession({ agentId: AGENT_ID, connectionType: "webrtc" });
     } catch (error) {
       onAssistantVisibilityChange(false);
       console.error("Error al iniciar la conversación:", error);

@@ -32,7 +32,7 @@ function Storefront({ assistantOpen, conversationError, onAssistantVisibilityCha
   if (storeCheckout) {
     return (
       <>
-        <AssistantClientTools />
+        <AssistantClientTools onAssistantVisibilityChange={onAssistantVisibilityChange} />
         <CheckoutView checkout={storeCheckout} standalone onBack={() => { setStoreCheckout(null); experience.showWelcome(); }} />
       </>
     );
@@ -40,7 +40,7 @@ function Storefront({ assistantOpen, conversationError, onAssistantVisibilityCha
 
   return (
     <>
-      <AssistantClientTools />
+      <AssistantClientTools onAssistantVisibilityChange={onAssistantVisibilityChange} />
       <HomePage
         onAssistantVisibilityChange={onAssistantVisibilityChange}
         onConversationError={onConversationError}
@@ -66,6 +66,11 @@ export default function App() {
     // El Provider habilita los hooks oficiales del SDK en todos sus componentes hijos.
     <ConversationProvider
       serverLocation="global"
+      // El estado de la sesión llega directamente desde el SDK. Esto evita
+      // depender sólo del callback del botón en navegadores móviles.
+      onStatusChange={({ status }) => {
+        setAssistantOpen(status === "connecting" || status === "connected");
+      }}
       // Algunos errores ocurren durante la sesión, no necesariamente dentro del click del botón.
       onError={(error) => {
         console.error("Error de conversación:", error);

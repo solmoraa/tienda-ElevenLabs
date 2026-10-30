@@ -9,11 +9,14 @@ function parseProductIds(productIds) {
   return String(productIds ?? "").split(",").map((id) => id.trim()).filter(Boolean);
 }
 
-export default function AssistantClientTools() {
+export default function AssistantClientTools({ onAssistantVisibilityChange }) {
   const { selectProductVariant, showCart, showCheckout, showError, showProductDetail, showProducts } = useAssistantExperience();
 
   useConversationClientTool("mostrar_productos", async ({ product_ids: productIds }) => {
     try {
+      // Si el agente pudo llamar una Client Tool, la interfaz debe quedar
+      // visible incluso si Safari demoró en propagar el estado de WebRTC.
+      onAssistantVisibilityChange(true);
       const ids = parseProductIds(productIds);
       if (!ids.length) throw new Error("La herramienta no recibió productos.");
       await showProducts(ids);
@@ -27,6 +30,7 @@ export default function AssistantClientTools() {
 
   useConversationClientTool("mostrar_detalle_producto", async ({ product_id: productId }) => {
     try {
+      onAssistantVisibilityChange(true);
       await showProductDetail(productId);
       await waitForRender();
       return `Panel actualizado con el detalle real del producto ${productId}.`;
@@ -38,6 +42,7 @@ export default function AssistantClientTools() {
 
   useConversationClientTool("seleccionar_color_producto", async ({ color, product_id: productId }) => {
     try {
+      onAssistantVisibilityChange(true);
       const selection = await selectProductVariant(productId, { color });
       await waitForRender();
       return `Color ${selection.color} seleccionado para ${selection.product.name}.`;
@@ -48,6 +53,7 @@ export default function AssistantClientTools() {
 
   useConversationClientTool("mostrar_carrito", async ({ session_id: sessionId }) => {
     try {
+      onAssistantVisibilityChange(true);
       const cart = await showCart(sessionId);
       await waitForRender();
       const related = cart.recommendation;
@@ -62,6 +68,7 @@ export default function AssistantClientTools() {
 
   useConversationClientTool("mostrar_checkout", async ({ checkout_id: checkoutId }) => {
     try {
+      onAssistantVisibilityChange(true);
       await showCheckout(checkoutId);
       await waitForRender();
       return "La pantalla muestra el checkout de demostración validado por el servidor.";
